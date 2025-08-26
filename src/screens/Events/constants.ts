@@ -24,7 +24,7 @@ export type EVENT = {
     name: string;
     profile: {
       id: string;
-      profileUrl: string;
+      photoUrl: string;
       name: string;
     };
   };
@@ -59,7 +59,7 @@ export const MOCK_EVENTS: EVENT[] = [
       name: 'İstanbul Photography Club',
       profile: {
         id: 'org_001',
-        profileUrl: 'https://randomuser.me/api/portraits/men/10.jpg',
+        photoUrl: 'https://randomuser.me/api/portraits/men/10.jpg',
         name: 'Kerem Yılmaz',
       },
     },
@@ -92,7 +92,7 @@ export const MOCK_EVENTS: EVENT[] = [
       name: 'Bay Area SaaS Founders',
       profile: {
         id: 'org_002',
-        profileUrl: 'https://randomuser.me/api/portraits/women/50.jpg',
+        photoUrl: 'https://randomuser.me/api/portraits/women/50.jpg',
         name: 'Sarah Johnson',
       },
     },
@@ -125,7 +125,7 @@ export const MOCK_EVENTS: EVENT[] = [
       name: 'London Social Club',
       profile: {
         id: 'org_003',
-        profileUrl: 'https://randomuser.me/api/portraits/men/33.jpg',
+        photoUrl: 'https://randomuser.me/api/portraits/men/33.jpg',
         name: 'George Taylor',
       },
     },

@@ -48,7 +48,7 @@ const ParticipantsModal = ({ visible, handleClose, participants }: Props) => {
           {/* Bottom sheet */}
           <View
             style={{
-              height: '50%', // half screen
+              height: '50%',
               width: '100%',
               backgroundColor: '#fff',
               borderTopLeftRadius: 16,

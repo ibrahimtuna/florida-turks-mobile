@@ -1,6 +1,8 @@
 import {
   Alert,
   Image,
+  Linking,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -30,6 +32,18 @@ const EventDetailScreen = () => {
   if (!event) {
     return null;
   }
+  const openMap = () => {
+    const scheme = Platform.select({
+      ios: `maps:0,0?q=${event.title}@${event.location.lat},${event.location.lng}`,
+      android: `geo:0,0?q=${event.location.lat},${event.location.lng}(${event.title})`,
+    });
+
+    if (scheme) {
+      Linking.openURL(scheme).catch(err =>
+        console.error('Error opening map:', err),
+      );
+    }
+  };
 
   const handlePromptJoinEvent = () => {
     Alert.alert(t('events.join_alert_title'), t('events.join_alert_desc'), [
@@ -108,6 +122,7 @@ const EventDetailScreen = () => {
           >
             <TouchableOpacity
               activeOpacity={0.8}
+              onPress={openMap}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',

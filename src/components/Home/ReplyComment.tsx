@@ -4,8 +4,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
-const ReplyComment = () => {
-  const { bottom } = useSafeAreaInsets();
+type Props = {
+  onCancelPress: () => void;
+};
+
+const ReplyComment = ({ onCancelPress }: Props) => {
   const { t } = useTranslation();
   const [comment, setComment] = useState('');
 
@@ -77,7 +80,7 @@ const ReplyComment = () => {
         >
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => null}
+            onPress={onCancelPress}
             style={{
               backgroundColor: '#fff',
               padding: 8,

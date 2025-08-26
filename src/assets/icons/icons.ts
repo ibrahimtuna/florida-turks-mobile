@@ -20,6 +20,10 @@ import clock from './clock.svg';
 import arrowSquare from './arrow-square.svg';
 import moneyBag from './money-bag.svg';
 import message from './message.svg';
+import phone from './phone.svg';
+import settings from './settings.svg';
+import logout from './logout.svg';
+import camera from './camera.svg';
 
 export type IconName = keyof typeof Icons;
 
@@ -46,6 +50,10 @@ const Icons = {
   arrowSquare,
   moneyBag,
   message,
+  phone,
+  settings,
+  logout,
+  camera,
 };
 
 export default Icons;

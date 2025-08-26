@@ -3,12 +3,14 @@ import { Image, Text, View } from 'react-native';
 import CommentActionButtons from './CommentActionButtons.tsx';
 import SubComment from './SubComment.tsx';
 import ReplyComment from './ReplyComment.tsx';
+import { useState } from 'react';
 
 type Props = {
   item: Comment;
 };
 
 const FeedComment = ({ item }: Props) => {
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
   return (
     <View
       style={{
@@ -67,10 +69,12 @@ const FeedComment = ({ item }: Props) => {
           >
             {item.content}
           </Text>
-          <CommentActionButtons />
+          <CommentActionButtons onPressReply={() => setIsReplyOpen(true)} />
         </View>
       </View>
-      <ReplyComment />
+      {isReplyOpen && (
+        <ReplyComment onCancelPress={() => setIsReplyOpen(false)} />
+      )}
       {item.subComments.map(item => (
         <SubComment key={item._id} item={item} />
       ))}

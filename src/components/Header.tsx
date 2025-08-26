@@ -9,6 +9,7 @@ type Props = {
   showSearch?: boolean;
   showAddIcon?: boolean;
   showAddWithText?: boolean;
+  centered?: boolean;
 };
 
 const Header = ({
@@ -17,6 +18,7 @@ const Header = ({
   showSearch,
   showAddIcon,
   showAddWithText,
+  centered,
 }: Props) => {
   const { top } = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -28,7 +30,7 @@ const Header = ({
         height: top + 60,
         backgroundColor: '#fff',
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: centered ? 'center' : 'space-between',
         alignItems: 'center',
       }}
     >

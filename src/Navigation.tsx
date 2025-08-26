@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  NavigationContainer,
-  NavigationState,
-  PartialState,
-  Route,
-} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,6 +13,10 @@ import ProfileScreen from './screens/Profile';
 import FeedDetailScreen from './screens/FeedDetail';
 import { getLeafRouteName } from './helpers.ts';
 import EventDetailScreen from './screens/EventDetail';
+import CompanyDetailScreen from './screens/CompanyDetail';
+import CompanyCommentsScreen from './screens/CompanyComments';
+import ProfileSettingsScreen from './screens/ProfileSettings';
+import ChatDetailScreen from './screens/ChatDetail';
 
 const Tab = createBottomTabNavigator();
 
@@ -53,7 +52,72 @@ function EventStackNavigator() {
   );
 }
 
-const HIDE_TABBAR_ROUTES = ['FeedDetail', 'EventDetail', 'SomethingElse'];
+export type CompanyStackParamList = {
+  Companies: undefined;
+  CompanyDetail: { companyId: string };
+  CompanyComments: { companyId: string };
+};
+
+const CompanyStack = createNativeStackNavigator<CompanyStackParamList>();
+
+function CompanyStackNavigator() {
+  return (
+    <CompanyStack.Navigator screenOptions={{ headerShown: false }}>
+      <CompanyStack.Screen name="Companies" component={CompaniesScreen} />
+      <CompanyStack.Screen
+        name="CompanyDetail"
+        component={CompanyDetailScreen}
+      />
+      <CompanyStack.Screen
+        name="CompanyComments"
+        component={CompanyCommentsScreen}
+      />
+    </CompanyStack.Navigator>
+  );
+}
+
+export type ChatStackParamList = {
+  Chat: undefined;
+  ChatDetail: undefined;
+};
+
+const ChatStack = createNativeStackNavigator<ChatStackParamList>();
+
+function ChatStackNavigator() {
+  return (
+    <ChatStack.Navigator screenOptions={{ headerShown: false }}>
+      <ChatStack.Screen name="Chat" component={ChatScreen} />
+      <ChatStack.Screen name="ChatDetail" component={ChatDetailScreen} />
+    </ChatStack.Navigator>
+  );
+}
+
+export type ProfileStackParamList = {
+  Profile: undefined;
+  ProfileSettings: undefined;
+};
+
+const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
+
+function ProfileStackNavigator() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+      <ProfileStack.Screen
+        name="ProfileSettings"
+        component={ProfileSettingsScreen}
+      />
+    </ProfileStack.Navigator>
+  );
+}
+
+const HIDE_TABBAR_ROUTES = [
+  'FeedDetail',
+  'EventDetail',
+  'CompanyDetail',
+  'CompanyComments',
+  'ProfileSettings',
+];
 
 function Navigation() {
   const { t } = useTranslation();
@@ -83,17 +147,17 @@ function Navigation() {
         />
         <Tab.Screen
           name="Companies"
-          component={CompaniesScreen}
+          component={CompanyStackNavigator}
           options={{ title: t('tabs.companies') }}
         />
         <Tab.Screen
           name="Chat"
-          component={ChatScreen}
+          component={ChatStackNavigator}
           options={{ title: t('tabs.chat') }}
         />
         <Tab.Screen
           name="Profile"
-          component={ProfileScreen}
+          component={ProfileStackNavigator}
           options={{ title: t('tabs.profile') }}
         />
       </Tab.Navigator>

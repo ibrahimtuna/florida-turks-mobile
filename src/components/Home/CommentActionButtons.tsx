@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 type Props = {
   isSubComment?: boolean;
+  onPressReply: () => void;
 };
 
-const CommentActionButtons = ({ isSubComment }: Props) => {
+const CommentActionButtons = ({ isSubComment, onPressReply }: Props) => {
   const { t } = useTranslation();
 
   return (
@@ -23,7 +24,11 @@ const CommentActionButtons = ({ isSubComment }: Props) => {
         <Text style={{ color: '#000' }}>16</Text>
       </TouchableOpacity>
       {!isSubComment && (
-        <TouchableOpacity activeOpacity={0.8} style={styles.button}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.button}
+          onPress={onPressReply}
+        >
           <Icon name="reply" size="s" />
           <Text style={{ color: '#000' }}>{t('commons.reply')}</Text>
         </TouchableOpacity>
