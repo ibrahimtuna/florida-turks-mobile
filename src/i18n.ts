@@ -90,6 +90,9 @@ const resources = {
       },
       chat: {
         search_placeholder: 'Search chat',
+        input_placeholder: 'Write a message',
+        delete_chat: 'Delete chat',
+        report_chat: 'Report chat',
       },
       commons: {
         back: 'Back',
@@ -195,6 +198,9 @@ const resources = {
       },
       chat: {
         search_placeholder: 'Konuşma ara',
+        input_placeholder: 'Mesaj yazın',
+        delete_chat: 'Sohbeti sil',
+        report_chat: 'Sohbeti raporla',
       },
       commons: {
         back: 'Geri',

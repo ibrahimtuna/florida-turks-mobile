@@ -78,7 +78,7 @@ function CompanyStackNavigator() {
 
 export type ChatStackParamList = {
   Chat: undefined;
-  ChatDetail: undefined;
+  ChatDetail: { chatId: string };
 };
 
 const ChatStack = createNativeStackNavigator<ChatStackParamList>();
@@ -117,6 +117,7 @@ const HIDE_TABBAR_ROUTES = [
   'CompanyDetail',
   'CompanyComments',
   'ProfileSettings',
+  'ChatDetail',
 ];
 
 function Navigation() {

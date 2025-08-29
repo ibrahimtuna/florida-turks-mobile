@@ -7,6 +7,7 @@ export type MESSAGE = {
 };
 
 export type CHAT_ITEM = {
+  id: string;
   profilePhotoUrl: string;
   name: string;
   lastMessage: string;
@@ -17,6 +18,7 @@ export type CHAT_ITEM = {
 
 export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
   {
+    id: 'c1',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
     name: 'John Doe',
     lastMessage: 'Hey, are we still on for tomorrow?',
@@ -38,6 +40,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c2',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/women/2.jpg',
     name: 'Emily Johnson',
     lastMessage: 'Can you send me the report?',
@@ -53,6 +56,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c3',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/men/3.jpg',
     name: 'Michael Brown',
     lastMessage: 'Got it, thanks!',
@@ -74,6 +78,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c4',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/women/4.jpg',
     name: 'Sophia Miller',
     lastMessage: 'Where are you now?',
@@ -89,6 +94,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c5',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/men/5.jpg',
     name: 'David Wilson',
     lastMessage: 'See you soon!',
@@ -110,6 +116,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c6',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/women/6.jpg',
     name: 'Olivia Davis',
     lastMessage: 'Let’s grab coffee sometime ☕',
@@ -125,6 +132,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c7',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/men/7.jpg',
     name: 'James Taylor',
     lastMessage: 'That’s awesome!',
@@ -146,6 +154,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c8',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/women/8.jpg',
     name: 'Isabella Martinez',
     lastMessage: 'Sure, no problem.',
@@ -167,6 +176,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c9',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/men/9.jpg',
     name: 'William Anderson',
     lastMessage: 'Talk later 👍',
@@ -182,6 +192,7 @@ export const MOCK_CHAT_ITEMS: CHAT_ITEM[] = [
     ],
   },
   {
+    id: 'c10',
     profilePhotoUrl: 'https://randomuser.me/api/portraits/women/10.jpg',
     name: 'Mia Thompson',
     lastMessage: 'Goodnight 🌙',

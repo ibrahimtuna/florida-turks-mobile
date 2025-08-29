@@ -24,6 +24,8 @@ import phone from './phone.svg';
 import settings from './settings.svg';
 import logout from './logout.svg';
 import camera from './camera.svg';
+import horizontalDots from './horizontal-dots.svg';
+import trash from './trash.svg';
 
 export type IconName = keyof typeof Icons;
 
@@ -54,6 +56,8 @@ const Icons = {
   settings,
   logout,
   camera,
+  horizontalDots,
+  trash,
 };
 
 export default Icons;

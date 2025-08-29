@@ -26,7 +26,9 @@ const ProfileScreen = () => {
       >
         <View
           style={{
-            backgroundColor: 'red',
+            borderColor: 'red',
+            borderWidth: 1,
+            backgroundColor: '#fff',
             paddingVertical: 32,
             paddingHorizontal: 24,
             borderRadius: 12,
@@ -36,9 +38,9 @@ const ProfileScreen = () => {
             <Image
               source={{ uri: 'https://randomuser.me/api/portraits/men/13.jpg' }}
               style={{
-                height: 62,
-                width: 62,
-                borderRadius: 31,
+                height: 80,
+                width: 80,
+                borderRadius: 40,
                 borderWidth: 1,
                 borderColor: '#fff',
               }}
@@ -46,7 +48,7 @@ const ProfileScreen = () => {
           </View>
           <Text
             style={{
-              color: '#F8F9FB',
+              color: '#1e1e1e',
               marginTop: 24,
               fontWeight: '600',
               fontSize: 14,
@@ -57,7 +59,7 @@ const ProfileScreen = () => {
           </Text>
           <Text
             style={{
-              color: '#FFFFFF',
+              color: '#1e1e1e',
               marginTop: 24,
               fontWeight: '500',
               fontSize: 14,
@@ -70,7 +72,7 @@ const ProfileScreen = () => {
           </Text>
           <Text
             style={{
-              color: '#FFFFFF',
+              color: '#1e1e1e',
               marginTop: 24,
               fontWeight: '400',
               fontSize: 20,
@@ -80,10 +82,10 @@ const ProfileScreen = () => {
             {t('profile.contact_information')}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Icon name="calendar" fill="#fff" size="xs" />
+            <Icon name="calendar" fill="#1e1e1e" size="xs" />
             <Text
               style={{
-                color: '#fff',
+                color: '#1e1e1e',
                 fontSize: 16,
               }}
             >
@@ -100,10 +102,10 @@ const ProfileScreen = () => {
               marginTop: 16,
             }}
           >
-            <Icon name="message" fill="#fff" size="xs" />
+            <Icon name="message" fill="#1e1e1e" size="xs" />
             <Text
               style={{
-                color: '#fff',
+                color: '#1e1e1e',
                 fontSize: 16,
               }}
             >
@@ -118,10 +120,10 @@ const ProfileScreen = () => {
               marginTop: 16,
             }}
           >
-            <Icon name="locationPoint" fill="#fff" size="xs" />
+            <Icon name="locationPoint" fill="#1e1e1e" size="xs" />
             <Text
               style={{
-                color: '#fff',
+                color: '#1e1e1e',
                 fontSize: 16,
               }}
             >
@@ -140,7 +142,8 @@ const ProfileScreen = () => {
           >
             <View
               style={{
-                backgroundColor: '#fff',
+                borderWidth: 1,
+                borderColor: '#1e1e1e',
                 flexDirection: 'row',
                 alignItems: 'center',
                 paddingVertical: 4,
@@ -148,7 +151,7 @@ const ProfileScreen = () => {
                 borderRadius: 12,
               }}
             >
-              <Icon name="diamond" fill="#fff" size="s" />
+              <Icon name="diamond" fill="#1e1e1e" size="s" />
               <Text
                 style={{
                   fontWeight: '500',
@@ -161,7 +164,7 @@ const ProfileScreen = () => {
             </View>
             <Text
               style={{
-                color: '#fff',
+                color: '#1e1e1e',
                 fontSize: 16,
               }}
             >

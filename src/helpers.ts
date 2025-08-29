@@ -1,4 +1,5 @@
 import { NavigationState, PartialState, Route } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
 
 export function getLeafRouteName(
   route: Route<string> & {
@@ -11,3 +12,5 @@ export function getLeafRouteName(
   }
   return r?.name ?? route.name;
 }
+
+export const windowWidth = Dimensions.get('window').width;

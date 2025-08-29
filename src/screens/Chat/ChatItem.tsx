@@ -1,14 +1,22 @@
 import { CHAT_ITEM } from './constants.ts';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/core';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type Props = {
   item: CHAT_ITEM;
 };
 
 const ChatItem = ({ item }: Props) => {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   return (
     <TouchableOpacity
       activeOpacity={0.8}
+      onPress={() => {
+        navigation.navigate('ChatDetail', {
+          chatId: item.id,
+        });
+      }}
       style={{
         flexDirection: 'row',
         alignItems: 'center',

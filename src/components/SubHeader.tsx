@@ -9,7 +9,7 @@ type Props = {
   hideBackButton?: boolean;
 };
 
-const Header = ({ title, hideBackButton }: Props) => {
+const SubHeader = ({ title, hideBackButton }: Props) => {
   const { top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -65,4 +65,4 @@ const Header = ({ title, hideBackButton }: Props) => {
   );
 };
 
-export default Header;
+export default SubHeader;
