@@ -17,7 +17,14 @@ import CompanyDetailScreen from './screens/CompanyDetail';
 import CompanyCommentsScreen from './screens/CompanyComments';
 import ProfileSettingsScreen from './screens/ProfileSettings';
 import ChatDetailScreen from './screens/ChatDetail';
+import LoginScreen from './screens/Login';
+import OnboardingScreen from './screens/Onboarding';
+import CreateAccountScreen from './screens/CreateAccount';
+import ForgotPasswordScreen from './screens/ForgotPassword';
+import ForgotPasswordVerifyCodeScreen from './screens/ForgotPassword/VerifyCode.tsx';
+import ForgotPasswordNewPassScreen from './screens/ForgotPassword/NewPass.tsx';
 
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export type HomeStackParamList = {
@@ -120,48 +127,80 @@ const HIDE_TABBAR_ROUTES = [
   'ChatDetail',
 ];
 
-function Navigation() {
+function TabNavigation() {
   const { t } = useTranslation();
+  return (
+    <Tab.Navigator
+      // hide all default styling—we control everything in CustomTabBar
+      screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}
+      tabBar={props => {
+        const currentTabRoute = props.state.routes[props.state.index] as any;
+        const focusedName = getLeafRouteName(currentTabRoute);
+
+        if (HIDE_TABBAR_ROUTES.includes(focusedName)) return null;
+        return <CustomTabBar {...props} />;
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeStackNavigator}
+        options={{ title: t('tabs.home') }}
+      />
+      <Tab.Screen
+        name="Events"
+        component={EventStackNavigator}
+        options={{ title: t('tabs.events') }}
+      />
+      <Tab.Screen
+        name="Companies"
+        component={CompanyStackNavigator}
+        options={{ title: t('tabs.companies') }}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={ChatStackNavigator}
+        options={{ title: t('tabs.chat') }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileStackNavigator}
+        options={{ title: t('tabs.profile') }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function Navigation() {
+  const isLoggedIn = false;
 
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        // hide all default styling—we control everything in CustomTabBar
-        screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}
-        tabBar={props => {
-          const currentTabRoute = props.state.routes[props.state.index] as any;
-          const focusedName = getLeafRouteName(currentTabRoute);
-
-          if (HIDE_TABBAR_ROUTES.includes(focusedName)) return null;
-          return <CustomTabBar {...props} />;
-        }}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomeStackNavigator}
-          options={{ title: t('tabs.home') }}
-        />
-        <Tab.Screen
-          name="Events"
-          component={EventStackNavigator}
-          options={{ title: t('tabs.events') }}
-        />
-        <Tab.Screen
-          name="Companies"
-          component={CompanyStackNavigator}
-          options={{ title: t('tabs.companies') }}
-        />
-        <Tab.Screen
-          name="Chat"
-          component={ChatStackNavigator}
-          options={{ title: t('tabs.chat') }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={ProfileStackNavigator}
-          options={{ title: t('tabs.profile') }}
-        />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {isLoggedIn ? (
+          <Stack.Screen name="Main" component={TabNavigation} />
+        ) : (
+          <>
+            <Stack.Screen name={'Login'} component={LoginScreen} />
+            <Stack.Screen name={'Onboarding'} component={OnboardingScreen} />
+            <Stack.Screen
+              name={'CreateAccount'}
+              component={CreateAccountScreen}
+            />
+            <Stack.Screen
+              name={'ForgotPassword'}
+              component={ForgotPasswordScreen}
+            />
+            <Stack.Screen
+              name={'ForgotPasswordVerifyCode'}
+              component={ForgotPasswordVerifyCodeScreen}
+            />
+            <Stack.Screen
+              name={'ForgotPasswordNewPass'}
+              component={ForgotPasswordNewPassScreen}
+            />
+          </>
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

@@ -26,10 +26,16 @@ import logout from './logout.svg';
 import camera from './camera.svg';
 import horizontalDots from './horizontal-dots.svg';
 import trash from './trash.svg';
+import eye from './eye.svg';
+import apple from './apple.svg';
+import google from './google.svg';
 
 export type IconName = keyof typeof Icons;
 
 const Icons = {
+  apple,
+  google,
+  eye,
   home,
   calendar,
   company,
