@@ -6,12 +6,14 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { REQUEST_VERIFY_OTP } from '../../api/requests.ts';
+import Toast from 'react-native-toast-message';
 
 type OtpVerifyModalProps = {
   visible: boolean;
@@ -28,6 +30,28 @@ const OtpVerifyModal: React.FC<OtpVerifyModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [otp, setOtp] = useState('');
+  const [isVerifyLoading, setIsVerifyLoading] = useState(false);
+
+  const handleVerify = () => {
+    setIsVerifyLoading(true);
+    REQUEST_VERIFY_OTP({
+      phoneNumber,
+      code: otp,
+    })
+      .then(() => {
+        setOtp('');
+        onVerify(otp);
+        onClose();
+      })
+      .catch(err => {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: err.response?.data?.message || 'Server error',
+        });
+      })
+      .finally(() => setIsVerifyLoading(false));
+  };
 
   return (
     <Modal
@@ -69,11 +93,11 @@ const OtpVerifyModal: React.FC<OtpVerifyModalProps> = ({
               <TouchableOpacity
                 style={[styles.button, otp.length < 6 && { opacity: 0.5 }]}
                 disabled={otp.length < 6}
-                onPress={() => {
-                  onVerify(otp);
-                  onClose();
-                }}
+                onPress={handleVerify}
               >
+                {isVerifyLoading && (
+                  <ActivityIndicator color="#fff" style={{ marginRight: 8 }} />
+                )}
                 <Text style={styles.buttonText}>{t('commons.confirm')}</Text>
               </TouchableOpacity>
 
@@ -137,6 +161,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   button: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#E40E1A',
     borderRadius: 12,
     paddingVertical: 12,

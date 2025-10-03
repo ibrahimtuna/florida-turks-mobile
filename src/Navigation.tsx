@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,11 @@ import CreateAccountScreen from './screens/CreateAccount';
 import ForgotPasswordScreen from './screens/ForgotPassword';
 import ForgotPasswordVerifyCodeScreen from './screens/ForgotPassword/VerifyCode.tsx';
 import ForgotPasswordNewPassScreen from './screens/ForgotPassword/NewPass.tsx';
+import { useAppSelector } from './store';
+import Toast from 'react-native-toast-message';
+import { REQUEST_GET_ME } from './api/requests.ts';
+import { setUser } from './store/reducers/user.ts';
+import { useDispatch } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -128,7 +133,15 @@ const HIDE_TABBAR_ROUTES = [
 ];
 
 function TabNavigation() {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    REQUEST_GET_ME().then(({ data }) => {
+      dispatch(setUser(data.user));
+    });
+  }, [dispatch]);
+
   return (
     <Tab.Navigator
       // hide all default styling—we control everything in CustomTabBar
@@ -171,12 +184,12 @@ function TabNavigation() {
 }
 
 function Navigation() {
-  const isLoggedIn = false;
+  const { user } = useAppSelector(state => state.user);
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
+        {user?.photoKey ? (
           <Stack.Screen name="Main" component={TabNavigation} />
         ) : (
           <>
@@ -201,6 +214,7 @@ function Navigation() {
           </>
         )}
       </Stack.Navigator>
+      <Toast />
     </NavigationContainer>
   );
 }

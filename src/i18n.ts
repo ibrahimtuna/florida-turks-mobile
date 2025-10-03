@@ -117,6 +117,10 @@ const resources = {
         otp_title: 'OTP Verification',
         otp_desc: 'Enter the code sent to {{phoneNumber}}',
       },
+      delete_account: {
+        title: 'Delete Account',
+        desc: 'Are you sure you want to delete your account? This action cannot be undone.',
+      },
       commons: {
         back: 'Back',
         reply: 'Reply',
@@ -252,6 +256,10 @@ const resources = {
       onboarding: {
         otp_title: 'SMS Doğrulama',
         otp_desc: '{{phoneNumber}} numarasına gönderilen kodu giriniz.',
+      },
+      delete_account: {
+        title: 'Hesabı Sil',
+        desc: 'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
       },
       commons: {
         back: 'Geri',

@@ -1,8 +1,17 @@
 import Icon from '../Icon.tsx';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
+import { REQUEST_GOOGLE_LOGIN } from '../../api/requests.ts';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { login, socialLogin } from '../../store/reducers/user.ts';
 
 GoogleSignin.configure({
   webClientId:
@@ -10,8 +19,12 @@ GoogleSignin.configure({
 });
 
 const GoogleLogin = () => {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleGoogleLogin = async () => {
+    setIsLoading(true);
     try {
       // Step 1: Google sign-in
       const { data } = await GoogleSignin.signIn();
@@ -19,8 +32,6 @@ const GoogleLogin = () => {
       if (!idToken) {
         throw new Error('No idToken provided');
       }
-      console.log(idToken, '<-- id token');
-
       // Step 2: Create Firebase credential
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
@@ -32,10 +43,19 @@ const GoogleLogin = () => {
       // Step 4: Get Firebase ID token (JWT)
       const firebaseIdToken = await userCredential.user.getIdToken();
 
-      // Send this token to your backend Lambda
-      return firebaseIdToken;
-    } catch (error) {
+      const googleLoginRes = await REQUEST_GOOGLE_LOGIN(firebaseIdToken);
+      console.log(googleLoginRes.data, '<-- firebase google login response');
+      dispatch(login(googleLoginRes.data.accessToken));
+      dispatch(
+        socialLogin({
+          email: googleLoginRes.data.email,
+          name: googleLoginRes.data.name,
+        }),
+      );
+    } catch (error: any) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,9 +64,11 @@ const GoogleLogin = () => {
       style={styles.socialButton}
       activeOpacity={0.8}
       onPress={handleGoogleLogin}
+      disabled={isLoading}
     >
       <Icon name="google" size="s" />
       <Text>{t('login.login_google')}</Text>
+      {isLoading && <ActivityIndicator />}
     </TouchableOpacity>
   );
 };

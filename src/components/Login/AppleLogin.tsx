@@ -1,14 +1,26 @@
 import Icon from '../Icon.tsx';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import auth from '@react-native-firebase/auth';
+import { useState } from 'react';
+import { REQUEST_APPLE_LOGIN } from '../../api/requests.ts';
+import { login, socialLogin } from '../../store/reducers/user.ts';
+import { useDispatch } from 'react-redux';
 
 const AppleLogin = () => {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAppleLogin = async () => {
     try {
+      setIsLoading(true);
       // Step 1: Request Apple credentials
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: 1, // LOGIN
@@ -33,9 +45,19 @@ const AppleLogin = () => {
       // Step 4: Get Firebase ID token (to send to your backend)
       const firebaseIdToken = await userCredential.user.getIdToken();
 
-      return firebaseIdToken; // send this to Lambda
-    } catch (e) {
-      console.log(e);
+      const appleLoginRes = await REQUEST_APPLE_LOGIN(firebaseIdToken);
+      console.log(appleLoginRes.data, '<-- firebase google login response');
+      dispatch(login(appleLoginRes.data.accessToken));
+      dispatch(
+        socialLogin({
+          email: appleLoginRes.data.email,
+          name: appleLoginRes.data.name,
+        }),
+      );
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,9 +66,11 @@ const AppleLogin = () => {
       style={styles.socialButton}
       activeOpacity={0.8}
       onPress={handleAppleLogin}
+      disabled={isLoading}
     >
       <Icon name="apple" size="s" />
       <Text>{t('login.login_apple')}</Text>
+      {isLoading && <ActivityIndicator />}
     </TouchableOpacity>
   );
 };

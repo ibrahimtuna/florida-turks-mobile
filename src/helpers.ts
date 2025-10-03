@@ -1,5 +1,6 @@
 import { NavigationState, PartialState, Route } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
+import { CDN_URL } from './api/endpoints.ts';
 
 export function getLeafRouteName(
   route: Route<string> & {
@@ -14,3 +15,6 @@ export function getLeafRouteName(
 }
 
 export const windowWidth = Dimensions.get('window').width;
+
+export const cdnImage = (photoKey: string) =>
+  `${CDN_URL}/${photoKey.replace('photos/', '')}`;

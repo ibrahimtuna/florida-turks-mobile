@@ -29,6 +29,7 @@ import trash from './trash.svg';
 import eye from './eye.svg';
 import apple from './apple.svg';
 import google from './google.svg';
+import eyeOff from './eye-off.svg';
 
 export type IconName = keyof typeof Icons;
 
@@ -64,6 +65,7 @@ const Icons = {
   camera,
   horizontalDots,
   trash,
+  eyeOff,
 };
 
 export default Icons;

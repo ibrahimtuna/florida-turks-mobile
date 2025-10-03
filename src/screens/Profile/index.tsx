@@ -1,13 +1,61 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Header from '../../components/Header.tsx';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../components/Icon.tsx';
 import { useNavigation } from '@react-navigation/core';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAppSelector } from '../../store';
+import { cdnImage } from '../../helpers.ts';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../store/reducers/user.ts';
+import { REQUEST_DELETE_ACCOUNT } from '../../api/requests.ts';
+import { useState } from 'react';
+import moment from 'moment';
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { user } = useAppSelector(state => state.user);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t('delete_account.title'),
+      t('delete_account.desc'),
+      [
+        {
+          text: t('commons.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('commons.confirm'),
+          style: 'destructive',
+          onPress: () => {
+            setDeleteLoading(true);
+            REQUEST_DELETE_ACCOUNT()
+              .then(() => {
+                handleLogout();
+              })
+              .finally(() => setDeleteLoading(false));
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   return (
     <View
@@ -36,7 +84,7 @@ const ProfileScreen = () => {
         >
           <View style={{ alignItems: 'center' }}>
             <Image
-              source={{ uri: 'https://randomuser.me/api/portraits/men/13.jpg' }}
+              source={{ uri: cdnImage(user.photoKey) }}
               style={{
                 height: 80,
                 width: 80,
@@ -55,21 +103,21 @@ const ProfileScreen = () => {
               textAlign: 'center',
             }}
           >
-            Mehmet Yılmaz
+            {`${user.name} ${user.surname}`}
           </Text>
-          <Text
-            style={{
-              color: '#1e1e1e',
-              marginTop: 24,
-              fontWeight: '500',
-              fontSize: 14,
-              textAlign: 'center',
-            }}
-          >
-            Merhabalar, ben Mehmet. 5 yıldır amerikada avukat olarak
-            çalışmaktayım. Özellikle iş için yapılacak event’lerde sizlerle
-            tanışmak isterim.
-          </Text>
+          {user.bio && (
+            <Text
+              style={{
+                color: '#1e1e1e',
+                marginTop: 24,
+                fontWeight: '500',
+                fontSize: 14,
+                textAlign: 'center',
+              }}
+            >
+              {user.bio}
+            </Text>
+          )}
           <Text
             style={{
               color: '#1e1e1e',
@@ -90,7 +138,7 @@ const ProfileScreen = () => {
               }}
             >
               {t('profile.member_since', {
-                date: '09/11/2020',
+                date: moment(user.createdAt).format('MM/DD/YYYY'),
               })}
             </Text>
           </View>
@@ -109,7 +157,7 @@ const ProfileScreen = () => {
                 fontSize: 16,
               }}
             >
-              mehmet@gmail.com
+              {user.email}
             </Text>
           </View>
           <View
@@ -128,7 +176,7 @@ const ProfileScreen = () => {
               }}
             >
               {t('profile.lives_in', {
-                location: 'Boston, MA',
+                location: user.location,
               })}
             </Text>
           </View>
@@ -159,7 +207,7 @@ const ProfileScreen = () => {
                   marginLeft: 8,
                 }}
               >
-                18
+                {user.rewards}
               </Text>
             </View>
             <Text
@@ -198,6 +246,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.8}
+          onPress={handleLogout}
           style={{
             marginTop: 12,
             borderWidth: 1,
@@ -222,12 +271,16 @@ const ProfileScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.8}
+          onPress={handleDeleteAccount}
+          disabled={deleteLoading}
           style={{
             marginTop: 24,
             flexDirection: 'row',
             justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
+          {deleteLoading && <ActivityIndicator style={{ marginRight: 8 }} />}
           <Text
             style={{
               fontSize: 12,
