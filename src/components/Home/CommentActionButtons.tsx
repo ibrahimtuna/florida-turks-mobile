@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 type Props = {
   isSubComment?: boolean;
-  onPressReply: () => void;
+  onPressReply?: () => void;
 };
 
 const CommentActionButtons = ({ isSubComment, onPressReply }: Props) => {

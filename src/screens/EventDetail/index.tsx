@@ -12,30 +12,45 @@ import SubHeader from '../../components/SubHeader.tsx';
 import { useTranslation } from 'react-i18next';
 import { RouteProp, useRoute } from '@react-navigation/core';
 import { EventStackParamList } from '../../Navigation.tsx';
-import { MOCK_EVENTS } from '../Events/constants.ts';
 import Icon from '../../components/Icon.tsx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
 import ParticipantsModal from '../../components/Events/ParticipantsModal.tsx';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useAppSelector } from '../../store';
+import { cdnImage } from '../../helpers.ts';
+import i18n from '../../i18n.ts';
 
 type EventDetailRouteProp = RouteProp<EventStackParamList, 'EventDetail'>;
 
 const EventDetailScreen = () => {
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { language } = i18n;
+  const { events, categories } = useAppSelector(state => state.event);
   const route = useRoute<EventDetailRouteProp>();
   const { eventId } = route.params;
-  const event = MOCK_EVENTS.find(item => item.id === eventId);
+  const event = events.find(item => item._id === eventId);
   const [showParticipants, setShowParticipants] = useState(false);
+
+  const categoryName = useMemo(() => {
+    if (!event) {
+      return '';
+    }
+    const foundCategory = categories.find(c => c._id === event.categoryId);
+    if (!foundCategory) {
+      return '';
+    }
+    return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
+  }, [language, categories, event]);
 
   if (!event) {
     return null;
   }
   const openMap = () => {
     const scheme = Platform.select({
-      ios: `maps:0,0?q=${event.title}@${event.location.lat},${event.location.lng}`,
-      android: `geo:0,0?q=${event.location.lat},${event.location.lng}(${event.title})`,
+      ios: `maps:0,0?q=${event.title}@{event.location.lat},{event.location.lng}`,
+      android: `geo:0,0?q={event.location.lat},{event.location.lng}(${event.title})`,
     });
 
     if (scheme) {
@@ -94,11 +109,11 @@ const EventDetailScreen = () => {
               color: '#000000',
             }}
           >
-            {t(`events.categories.${event.category}`)}
+            {categoryName}
           </Text>
         </View>
         <Image
-          source={{ uri: event.coverPhotoUrl }}
+          source={{ uri: cdnImage(event.photoKey) }}
           style={{ width: '100%', height: 200, borderRadius: 12 }}
         />
         <View
@@ -190,7 +205,7 @@ const EventDetailScreen = () => {
               color: '#808792',
             }}
           >
-            {event.location.name}
+            {event.location}
           </Text>
         </View>
         <View
@@ -225,7 +240,7 @@ const EventDetailScreen = () => {
             }}
           >
             {t('events.participants', {
-              total: event.totalParticipants,
+              total: event.participants.length,
               max: event.maxParticipants,
             })}
           </Text>
@@ -283,7 +298,7 @@ const EventDetailScreen = () => {
             }}
           >
             <Image
-              source={{ uri: event.organizer.profile.profileUrl }}
+              source={{ uri: cdnImage(event.createdBy.photoKey) }}
               style={{
                 height: 32,
                 width: 32,
@@ -297,7 +312,7 @@ const EventDetailScreen = () => {
                   color: '#000',
                 }}
               >
-                {event.organizer.profile.name}
+                {event.createdBy.name}
               </Text>
               <Text
                 style={{
@@ -305,7 +320,7 @@ const EventDetailScreen = () => {
                   color: '#808792',
                 }}
               >
-                {event.organizer.name}
+                {event.organizer}
               </Text>
             </View>
           </View>
@@ -355,7 +370,7 @@ const EventDetailScreen = () => {
           >
             {`${t('events.event_detail.participants')} ${t(
               'events.event_detail.person',
-              { count: event.totalParticipants },
+              { count: event.participants.length },
             )}`}
           </Text>
           <TouchableOpacity
@@ -383,8 +398,8 @@ const EventDetailScreen = () => {
           <View style={{ flexDirection: 'row', gap: 4 }}>
             {event.participants.slice(0, 6).map(item => (
               <Image
-                key={item.id}
-                source={{ uri: item.photoUrl }}
+                key={item._id}
+                source={{ uri: cdnImage(item.photoKey) }}
                 style={{
                   height: 32,
                   width: 32,
@@ -393,14 +408,18 @@ const EventDetailScreen = () => {
               />
             ))}
           </View>
-          <Text
-            style={{
-              fontSize: 12,
-              color: '#808792',
-            }}
-          >
-            {t('events.event_detail.and_more', { count: 18 })}
-          </Text>
+          {event.participants.length > 6 ? (
+            <Text
+              style={{
+                fontSize: 12,
+                color: '#808792',
+              }}
+            >
+              {t('events.event_detail.and_more', {
+                count: event.participants.length - 6,
+              })}
+            </Text>
+          ) : null}
         </View>
         <Text
           style={{
@@ -417,12 +436,12 @@ const EventDetailScreen = () => {
             fontSize: 12,
           }}
         >
-          {event.location.name}
+          {event.location}
         </Text>
         <MapView
           initialRegion={{
-            latitude: event.location.lat,
-            longitude: event.location.lng,
+            latitude: 0, // event.location,.lat
+            longitude: 0, // event.location.lng
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
@@ -435,8 +454,8 @@ const EventDetailScreen = () => {
         >
           <Marker
             coordinate={{
-              latitude: event.location.lat,
-              longitude: event.location.lng,
+              latitude: 0, // event.location,.lat
+              longitude: 0, // event.location.lng
             }}
           />
         </MapView>

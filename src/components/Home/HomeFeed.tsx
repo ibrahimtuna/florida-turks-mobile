@@ -1,17 +1,23 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { FeedItem } from '../../screens/Home/constants.ts';
 import Icon from '../Icon.tsx';
 import { useTranslation } from 'react-i18next';
 import FeedActionButtons from './FeedActionButtons.tsx';
 import { useNavigation } from '@react-navigation/core';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { FEED } from '../../store/types.ts';
+import { cdnImage } from '../../helpers.ts';
+import { useMemo } from 'react';
+import { useAppSelector } from '../../store';
+import i18n from '../../i18n.ts';
 
 type Props = {
-  item: FeedItem;
+  item: FEED;
 };
 
 const HomeFeed = ({ item }: Props) => {
   const { t } = useTranslation();
+  const { language } = i18n;
+  const { categories } = useAppSelector(state => state.feed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   const handleNavigateFeed = (feedId: string) => {
@@ -20,7 +26,15 @@ const HomeFeed = ({ item }: Props) => {
     });
   };
 
-  if (item.isSponsored) {
+  const categoryName = useMemo(() => {
+    const foundCategory = categories.find(c => c._id === item.feedCategoryId);
+    if (!foundCategory) {
+      return '';
+    }
+    return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
+  }, [language, categories, item]);
+
+  if (item.kind === 'ad') {
     return (
       <TouchableOpacity
         activeOpacity={0.8}
@@ -55,11 +69,11 @@ const HomeFeed = ({ item }: Props) => {
             fontSize: 12,
           }}
         >
-          {item.content}
+          {item.context}
         </Text>
-        {item.imageUrl && (
+        {item.photoKey && (
           <Image
-            source={{ uri: item.imageUrl }}
+            source={{ uri: cdnImage(item.photoKey) }}
             style={{
               width: '100%',
               height: 200,
@@ -114,7 +128,10 @@ const HomeFeed = ({ item }: Props) => {
             </Text>
           </TouchableOpacity>
         </View>
-        <FeedActionButtons />
+        <FeedActionButtons
+          commentCount={item.comments.length}
+          likeCount={item.likeCount}
+        />
       </TouchableOpacity>
     );
   }
@@ -145,44 +162,40 @@ const HomeFeed = ({ item }: Props) => {
             gap: 10,
           }}
         >
-          {item.profilePhotoUrl && (
-            <Image
-              source={{ uri: item.profilePhotoUrl }}
-              style={{ height: 32, width: 32, borderRadius: 16 }}
-            />
-          )}
-          {item.profileName && (
-            <View>
-              <Text
+          <Image
+            source={{ uri: cdnImage(item.createdBy.photoKey) }}
+            style={{ height: 32, width: 32, borderRadius: 16 }}
+          />
+          <View>
+            <Text
+              style={{
+                fontSize: 12,
+                color: '#000000',
+                marginBottom: 2,
+              }}
+            >
+              {`${item.createdBy.name} ${item.createdBy.surname}`}
+            </Text>
+            {item.location && (
+              <View
                 style={{
-                  fontSize: 12,
-                  color: '#000000',
-                  marginBottom: 2,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 2,
                 }}
               >
-                {item.profileName}
-              </Text>
-              {item.location && (
-                <View
+                <Icon name="locationPoint" size="xs" fill="#808792" />
+                <Text
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 2,
+                    fontSize: 12,
+                    color: '#808792',
                   }}
                 >
-                  <Icon name="locationPoint" size="xs" fill="#808792" />
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: '#808792',
-                    }}
-                  >
-                    {item.location}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
+                  {item.location}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
         <View
           style={{
@@ -196,7 +209,7 @@ const HomeFeed = ({ item }: Props) => {
               marginBottom: 2,
             }}
           >
-            {t(`home.categories.${item.category}`)}
+            {categoryName}
           </Text>
           <Text
             style={{
@@ -213,11 +226,11 @@ const HomeFeed = ({ item }: Props) => {
           fontSize: 12,
         }}
       >
-        {item.content}
+        {item.context}
       </Text>
-      {item.imageUrl && (
+      {item.photoKey && (
         <Image
-          source={{ uri: item.imageUrl }}
+          source={{ uri: cdnImage(item.photoKey) }}
           style={{
             width: '100%',
             height: 200,
@@ -225,7 +238,10 @@ const HomeFeed = ({ item }: Props) => {
           }}
         />
       )}
-      <FeedActionButtons />
+      <FeedActionButtons
+        commentCount={item.comments.length}
+        likeCount={item.likeCount}
+      />
     </TouchableOpacity>
   );
 };

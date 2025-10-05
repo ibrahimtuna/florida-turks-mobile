@@ -30,6 +30,12 @@ import eye from './eye.svg';
 import apple from './apple.svg';
 import google from './google.svg';
 import eyeOff from './eye-off.svg';
+import web from './web.svg';
+import chevronDown from './chevron-down.svg';
+import handMoney from './hand-money.svg';
+import peopleCircle from './people-circle.svg';
+import close from './close.svg';
+import gallery from './gallery.svg';
 
 export type IconName = keyof typeof Icons;
 
@@ -66,6 +72,12 @@ const Icons = {
   horizontalDots,
   trash,
   eyeOff,
+  web,
+  chevronDown,
+  handMoney,
+  peopleCircle,
+  close,
+  gallery,
 };
 
 export default Icons;

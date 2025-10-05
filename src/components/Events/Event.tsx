@@ -1,9 +1,13 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { EVENT } from '../../screens/Events/constants.ts';
 import Icon from '../Icon.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/core';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { EVENT } from '../../store/types.ts';
+import { cdnImage } from '../../helpers.ts';
+import { useMemo } from 'react';
+import i18n from '../../i18n.ts';
+import { useAppSelector } from '../../store';
 
 type Props = {
   item: EVENT;
@@ -11,13 +15,24 @@ type Props = {
 
 const Event = ({ item }: Props) => {
   const { t } = useTranslation();
+  const { language } = i18n;
+  const { categories } = useAppSelector(state => state.event);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
+  const categoryName = useMemo(() => {
+    const foundCategory = categories.find(c => c._id === item.categoryId);
+    if (!foundCategory) {
+      return '';
+    }
+    return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
+  }, [language, categories, item.categoryId]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() =>
         navigation.navigate('EventDetail', {
-          eventId: item.id,
+          eventId: item._id,
         })
       }
       style={{
@@ -45,11 +60,11 @@ const Event = ({ item }: Props) => {
             color: '#000000',
           }}
         >
-          {t(`events.categories.${item.category}`)}
+          {categoryName}
         </Text>
       </View>
       <Image
-        source={{ uri: item.coverPhotoUrl }}
+        source={{ uri: cdnImage(item.photoKey) }}
         style={{
           width: '100%',
           height: 200,
@@ -94,7 +109,7 @@ const Event = ({ item }: Props) => {
                 color: '#808792',
               }}
             >
-              {item.location.name}
+              {item.location}
             </Text>
           </View>
           <View
@@ -113,7 +128,7 @@ const Event = ({ item }: Props) => {
               }}
             >
               {t('events.participants', {
-                total: item.totalParticipants,
+                total: item.participants?.length || 0,
                 max: item.maxParticipants,
               })}
             </Text>
@@ -208,7 +223,7 @@ const Event = ({ item }: Props) => {
                 color: '#808792',
               }}
             >
-              {item.organizer.name}
+              {item.organizer}
             </Text>
           </View>
           <TouchableOpacity

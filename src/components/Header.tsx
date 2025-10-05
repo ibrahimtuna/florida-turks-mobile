@@ -2,6 +2,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from './Icon.tsx';
 import { useTranslation } from 'react-i18next';
+import { useAppSelector } from '../store';
 
 type Props = {
   title: string;
@@ -10,6 +11,7 @@ type Props = {
   showAddIcon?: boolean;
   showAddWithText?: boolean;
   centered?: boolean;
+  onAddButtonPress?: () => void;
 };
 
 const Header = ({
@@ -19,7 +21,9 @@ const Header = ({
   showAddIcon,
   showAddWithText,
   centered,
+  onAddButtonPress,
 }: Props) => {
+  const { user } = useAppSelector(state => state.user);
   const { top } = useSafeAreaInsets();
   const { t } = useTranslation();
   return (
@@ -62,7 +66,7 @@ const Header = ({
                 fontSize: 14,
               }}
             >
-              18
+              {user.rewards}
             </Text>
           </View>
         )}
@@ -77,17 +81,21 @@ const Header = ({
           </View>
         )}
         {showAddIcon && (
-          <View
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onAddButtonPress}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
             }}
           >
             <Icon name="addCircle" size="s" />
-          </View>
+          </TouchableOpacity>
         )}
         {showAddWithText && (
           <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onAddButtonPress}
             style={{
               flexDirection: 'row',
               alignItems: 'center',

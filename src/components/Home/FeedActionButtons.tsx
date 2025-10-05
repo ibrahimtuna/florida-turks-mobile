@@ -1,7 +1,12 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../Icon.tsx';
 
-const FeedActionButtons = () => {
+type Props = {
+  likeCount: number;
+  commentCount: number;
+};
+
+const FeedActionButtons = ({ likeCount, commentCount }: Props) => {
   return (
     <View
       style={{
@@ -27,7 +32,7 @@ const FeedActionButtons = () => {
             fontSize: 12,
           }}
         >
-          16
+          {likeCount}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -44,7 +49,7 @@ const FeedActionButtons = () => {
             fontSize: 12,
           }}
         >
-          16
+          {commentCount}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity

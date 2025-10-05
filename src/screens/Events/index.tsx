@@ -1,33 +1,63 @@
-import { ScrollView, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Header from '../../components/Header.tsx';
 import { useTranslation } from 'react-i18next';
 import SearchInput from '../../components/SearchInput.tsx';
 import HorizontalFilter from '../../components/HorizontalFilter.tsx';
 import Icon from '../../components/Icon.tsx';
-import { MOCK_EVENTS } from './constants.ts';
 import Event from '../../components/Events/Event.tsx';
+import i18n from '../../i18n.ts';
+import { useAppSelector } from '../../store';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigation } from '@react-navigation/core';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { REQUEST_GET_EVENTS } from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
+import { setEvents } from '../../store/reducers/event.ts';
 
 const EventsScreen = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { t } = useTranslation();
+  const { language } = i18n;
+  const { events, categories } = useAppSelector(state => state.event);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const MOCK_CATEGORIES = [
-    {
-      key: 'all',
-      label: t('events.categories.all'),
-    },
-    {
-      key: 'cultural',
-      label: t('events.categories.cultural'),
-    },
-    {
-      key: 'business',
-      label: t('events.categories.business'),
-    },
-    {
-      key: 'social',
-      label: t('events.categories.social'),
-    },
-  ];
+  const CATEGORIES = useMemo(() => {
+    return [
+      {
+        key: 'all',
+        label: t('commons.all'),
+      },
+      ...categories.map(category => ({
+        key: category._id,
+        label:
+          language === 'tr' ? category.turkishTitle : category.englishTitle,
+      })),
+    ];
+  }, [t, categories, language]);
+
+  const fetchEvents = useCallback(() => {
+    setIsLoading(true);
+    REQUEST_GET_EVENTS({
+      page: 0,
+      categoryId: selectedCategory !== 'all' ? selectedCategory : undefined,
+    })
+      .then(({ data }) => {
+        console.log(data, '<-- data');
+        dispatch(setEvents(data.items));
+      })
+      .finally(() => setIsLoading(false));
+  }, [dispatch, selectedCategory]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   return (
     <View
@@ -36,7 +66,12 @@ const EventsScreen = () => {
         flex: 1,
       }}
     >
-      <Header title={t('tabs.events')} showRewards showAddWithText />
+      <Header
+        title={t('tabs.events')}
+        showRewards
+        showAddWithText
+        onAddButtonPress={() => navigation.navigate('CreateEvent')}
+      />
       <ScrollView
         contentContainerStyle={{
           padding: 16,
@@ -51,14 +86,20 @@ const EventsScreen = () => {
             gap: 18,
           }}
         >
-          <HorizontalFilter categories={MOCK_CATEGORIES} />
+          <HorizontalFilter
+            selected={selectedCategory}
+            setSelected={setSelectedCategory}
+            categories={CATEGORIES}
+          />
           <TouchableOpacity activeOpacity={0.8}>
             <Icon name="map" size="m" fill="#808792" />
           </TouchableOpacity>
         </View>
-        {MOCK_EVENTS.map(event => (
-          <Event key={event.id} item={event} />
-        ))}
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          events?.map(event => <Event key={event._id} item={event} />)
+        )}
       </ScrollView>
     </View>
   );

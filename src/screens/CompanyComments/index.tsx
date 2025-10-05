@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { RouteProp, useRoute } from '@react-navigation/core';
 import { CompanyStackParamList } from '../../Navigation.tsx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MOCK_COMPANIES } from '../Companies/constants.ts';
 import Company from '../../components/Companies/Company.tsx';
 import FeedComment from '../../components/Home/FeedComment.tsx';
 import FeedDetailFooter from '../../components/Home/FeedDetailFooter.tsx';
+import { useAppSelector } from '../../store';
+import { useMemo } from 'react';
+import i18n from '../../i18n.ts';
 
 type CompanyDetailRouteProp = RouteProp<
   CompanyStackParamList,
@@ -17,9 +19,10 @@ type CompanyDetailRouteProp = RouteProp<
 const CompanyCommentsScreen = () => {
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { companies } = useAppSelector(state => state.company);
   const route = useRoute<CompanyDetailRouteProp>();
   const { companyId } = route.params;
-  const company = MOCK_COMPANIES.find(item => item.id === companyId);
+  const company = companies.find(item => item._id === companyId);
 
   if (!company) {
     return null;

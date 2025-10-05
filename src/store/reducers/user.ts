@@ -10,6 +10,7 @@ type User = {
   location: string;
   photoKey: string;
   rewards: number;
+  shareContact: boolean;
   status: 0 | 1 | 2;
   createdAt: string;
 };
@@ -31,6 +32,7 @@ const initialState: State = {
     location: '',
     photoKey: '',
     rewards: 0,
+    shareContact: false,
     status: 0,
     createdAt: '',
   },

@@ -1,13 +1,12 @@
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
 
 type Props = {
+  selected: string;
+  setSelected: (selected: string) => void;
   categories: { key: string; label: string }[];
 };
 
-const HorizontalFilter = ({ categories }: Props) => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-
+const HorizontalFilter = ({ selected, setSelected, categories }: Props) => {
   return (
     <ScrollView
       horizontal
@@ -19,10 +18,9 @@ const HorizontalFilter = ({ categories }: Props) => {
       {categories.map(category => (
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => setSelectedCategory(category.key)}
+          onPress={() => setSelected(category.key)}
           style={{
-            backgroundColor:
-              selectedCategory === category.key ? '#E40E1A' : '#F1F2F5',
+            backgroundColor: selected === category.key ? '#E40E1A' : '#F1F2F5',
             paddingVertical: 8,
             paddingHorizontal: 10,
             borderRadius: 999,
@@ -31,7 +29,7 @@ const HorizontalFilter = ({ categories }: Props) => {
           <Text
             style={{
               fontSize: 14,
-              color: selectedCategory === category.key ? '#FFF' : '#000000',
+              color: selected === category.key ? '#FFF' : '#000000',
             }}
           >
             {category.label}

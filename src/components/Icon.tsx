@@ -2,6 +2,7 @@ import React from 'react';
 import Icons, { IconName } from '../assets/icons/icons.ts';
 
 const Sizes = {
+  xxs: 12,
   xs: 16,
   s: 24,
   m: 32,

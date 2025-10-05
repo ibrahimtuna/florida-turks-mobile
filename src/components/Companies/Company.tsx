@@ -3,7 +3,11 @@ import Icon from '../Icon.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/core';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { COMPANY } from '../../screens/Companies/constants.ts';
+import { COMPANY } from '../../store/types.ts';
+import { cdnImage } from '../../helpers.ts';
+import { useAppSelector } from '../../store';
+import i18n from '../../i18n.ts';
+import { useMemo } from 'react';
 
 type Props = {
   item: COMPANY;
@@ -11,13 +15,24 @@ type Props = {
 
 const Company = ({ item }: Props) => {
   const { t } = useTranslation();
+  const { language } = i18n;
+  const { categories } = useAppSelector(state => state.company);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
+  const categoryName = useMemo(() => {
+    const foundCategory = categories.find(c => c._id === item.categoryId);
+    if (!foundCategory) {
+      return '';
+    }
+    return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
+  }, [language, categories, item.categoryId]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() =>
         navigation.navigate('CompanyDetail', {
-          companyId: item.id,
+          companyId: item._id,
         })
       }
       style={{
@@ -45,11 +60,11 @@ const Company = ({ item }: Props) => {
             color: '#000000',
           }}
         >
-          {t(`companies.categories.${item.category}`)}
+          {categoryName}
         </Text>
       </View>
       <Image
-        source={{ uri: item.coverPhotoUrl }}
+        source={{ uri: cdnImage(item.coverPhotoKey) }}
         style={{
           width: '100%',
           height: 200,
@@ -72,7 +87,7 @@ const Company = ({ item }: Props) => {
           }}
         >
           <Image
-            source={{ uri: item.logoPhotoUrl }}
+            source={{ uri: cdnImage(item.logoKey) }}
             style={{
               height: 44,
               width: 44,
@@ -85,7 +100,7 @@ const Company = ({ item }: Props) => {
               fontSize: 12,
             }}
           >
-            {item.title}
+            {item.name}
           </Text>
         </View>
         <View
@@ -110,7 +125,7 @@ const Company = ({ item }: Props) => {
                 color: '#808792',
               }}
             >
-              {item.location.name}
+              {item.location}
             </Text>
           </View>
         </View>
@@ -205,7 +220,7 @@ const Company = ({ item }: Props) => {
             }}
             onPress={() =>
               navigation.navigate('CompanyDetail', {
-                companyId: item.id,
+                companyId: item._id,
               })
             }
           >
@@ -236,13 +251,15 @@ const Company = ({ item }: Props) => {
             }}
           >
             <Icon name="heartOutline" size="s" />
-            <Text style={{ color: '#000' }}>16</Text>
+            <Text style={{ color: '#000' }}>{item.likeCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={()=>navigation.navigate('CompanyComments', {
-              companyId: item.id,
-            })}
+            onPress={() =>
+              navigation.navigate('CompanyComments', {
+                companyId: item._id,
+              })
+            }
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -250,7 +267,7 @@ const Company = ({ item }: Props) => {
             }}
           >
             <Icon name="chat" size="s" />
-            <Text style={{ color: '#000' }}>24</Text>
+            <Text style={{ color: '#000' }}>{item.comments.length}</Text>
           </TouchableOpacity>
         </View>
       </View>

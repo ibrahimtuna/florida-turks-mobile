@@ -13,11 +13,9 @@ const resources = {
         profile: 'Profile',
       },
       home: {
-        categories: {
-          all: 'All',
-          greenCard: 'Green card',
-          jobPosts: 'Job Posts',
-          celebrations: 'Celebrations',
+        greeting: {
+          title: 'Hi {{name}} 👋',
+          desc: 'You have {{count}} updates on your feed',
         },
         feed: {
           sponsored: 'Sponsored',
@@ -25,6 +23,11 @@ const resources = {
         feed_detail: {
           comments: 'Comments',
           comment_placeholder: 'Write a comment',
+        },
+        create_feed: {
+          post: 'Post',
+          placeholder: "What's happening?",
+          category_placeholder: 'Select a category',
         },
       },
       events: {
@@ -47,6 +50,19 @@ const resources = {
           and_more: 'and {{count}} more people',
           location: 'Location',
         },
+        create_event: {
+          title: 'Create Event',
+          banner: 'Event banner',
+          category: 'Category',
+          event_name: 'Title',
+          desc: 'Description',
+          address: 'Address',
+          max_participants: 'Max participants',
+          join_fee: 'Join fee',
+          organizer: 'Organizer',
+          share_my_profile: 'Share my profile',
+          date: 'Date',
+        },
         join_alert_title: 'Do you confirm to join?',
         join_alert_desc:
           'You are about to register for the event. Do you confirm?',
@@ -65,6 +81,17 @@ const resources = {
         company_detail: {
           created_by: 'Created by',
           claim_company: 'Claim Company',
+        },
+        create_company: {
+          title: 'Create Company',
+          category: 'Category',
+          banner: 'Banner photo',
+          logo: 'Logo',
+          name: 'Name',
+          desc: 'Description',
+          email: 'E-mail',
+          address: 'Address',
+          website: 'Website',
         },
       },
       profile: {
@@ -122,6 +149,7 @@ const resources = {
         desc: 'Are you sure you want to delete your account? This action cannot be undone.',
       },
       commons: {
+        all: 'All',
         back: 'Back',
         reply: 'Reply',
         report: 'Report',
@@ -153,11 +181,9 @@ const resources = {
         profile: 'Profil',
       },
       home: {
-        categories: {
-          all: 'Tümü',
-          greenCard: 'Green card',
-          jobPosts: 'İş ilanları',
-          celebrations: 'Kutlamalar',
+        greeting: {
+          title: 'Hi {{name}} 👋',
+          desc: 'Topluluk akışınızda {{count}} güncelleme var',
         },
         feed: {
           sponsored: 'Öne çıkan',
@@ -165,6 +191,11 @@ const resources = {
         feed_detail: {
           comments: 'Yorumlar',
           comment_placeholder: 'Yorumunuzu yazın',
+        },
+        create_feed: {
+          post: 'Yayınla',
+          placeholder: 'Neler oluyor?',
+          category_placeholder: 'Kategori seçiniz',
         },
       },
       events: {
@@ -187,6 +218,19 @@ const resources = {
           and_more: 've {{count}} kişi daha',
           location: 'Konum',
         },
+        create_event: {
+          title: 'Etkinlik Oluştur',
+          banner: 'Etkinlik görseli',
+          category: 'Kategori',
+          event_name: 'Başlık',
+          desc: 'Açıklama',
+          address: 'Adres',
+          max_participants: 'Kişi limiti',
+          join_fee: 'Katılım ücreti',
+          organizer: 'Organizatör',
+          share_my_profile: 'Profil bilgilerimi paylaş',
+          date: 'Tarih',
+        },
         join_alert_title: 'Kayıt yapılsın mı?',
         join_alert_desc:
           'Etkinliğe katılım kaydınız oluşturmak üzeresiniz. Onaylıyor musunuz?',
@@ -205,6 +249,17 @@ const resources = {
         company_detail: {
           created_by: 'Oluşturan',
           claim_company: 'Claim Company',
+        },
+        create_company: {
+          title: 'Firma Oluştur',
+          category: 'Kategori',
+          banner: 'Tanıtım fotoğrafı',
+          logo: 'Logo',
+          name: 'Ünvan',
+          desc: 'Açıklama',
+          email: 'E-mail',
+          address: 'Adres',
+          website: 'Website',
         },
       },
       profile: {
@@ -262,6 +317,7 @@ const resources = {
         desc: 'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
       },
       commons: {
+        all: 'Tümü',
         back: 'Geri',
         reply: 'Yanıtla',
         report: 'Şikayet Et',

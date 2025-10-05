@@ -10,29 +10,49 @@ import {
 import SubHeader from '../../components/SubHeader.tsx';
 import { useTranslation } from 'react-i18next';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/core';
-import navigation, { CompanyStackParamList } from '../../Navigation.tsx';
+import { CompanyStackParamList } from '../../Navigation.tsx';
 import Icon from '../../components/Icon.tsx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MOCK_COMPANIES } from '../Companies/constants.ts';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAppSelector } from '../../store';
+import { useMemo } from 'react';
+import i18n from '../../i18n.ts';
+import { cdnImage } from '../../helpers.ts';
 
 type CompanyDetailRouteProp = RouteProp<CompanyStackParamList, 'CompanyDetail'>;
 
 const CompanyDetailScreen = () => {
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { language } = i18n;
+  const { categories, companies } = useAppSelector(state => state.company);
   const route = useRoute<CompanyDetailRouteProp>();
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { companyId } = route.params;
-  const company = MOCK_COMPANIES.find(item => item.id === companyId);
+  const company = companies.find(item => item._id === companyId);
+
+  const categoryName = useMemo(() => {
+    if (!company) {
+      return '';
+    }
+    const foundCategory = categories.find(c => c._id === company.categoryId);
+    if (!foundCategory) {
+      return '';
+    }
+    return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
+  }, [language, categories, company]);
 
   if (!company) {
     return null;
   }
   const openMap = () => {
     const scheme = Platform.select({
-      ios: `maps:0,0?q=${company.title}@${company.location.lat},${company.location.lng}`,
-      android: `geo:0,0?q=${company.location.lat},${company.location.lng}(${company.title})`,
+      ios: `maps:0,0?q=${company.name}@${company.location || 'lat'},${
+        company.location || 'lng'
+      }`,
+      android: `geo:0,0?q=${company.location || 'lat'},${
+        company.location || 'lng'
+      }(${company.name})`,
     });
 
     if (scheme) {
@@ -49,7 +69,7 @@ const CompanyDetailScreen = () => {
         flex: 1,
       }}
     >
-      <SubHeader title={company.title} />
+      <SubHeader title={company.name} />
       <ScrollView
         contentContainerStyle={{
           padding: 16,
@@ -75,11 +95,11 @@ const CompanyDetailScreen = () => {
               color: '#000000',
             }}
           >
-            {t(`companies.categories.${company.category}`)}
+            {categoryName}
           </Text>
         </View>
         <Image
-          source={{ uri: company.coverPhotoUrl }}
+          source={{ uri: cdnImage(company.coverPhotoKey) }}
           style={{ width: '100%', height: 200, borderRadius: 12 }}
         />
         <View
@@ -97,7 +117,7 @@ const CompanyDetailScreen = () => {
             }}
           >
             <Image
-              source={{ uri: company.logoPhotoUrl }}
+              source={{ uri: cdnImage(company.logoKey) }}
               style={{
                 height: 44,
                 width: 44,
@@ -110,7 +130,7 @@ const CompanyDetailScreen = () => {
                 flex: 1,
               }}
             >
-              {company.title}
+              {company.name}
             </Text>
           </View>
 
@@ -203,13 +223,13 @@ const CompanyDetailScreen = () => {
             }}
           >
             <Icon name="heartOutline" size="s" />
-            <Text style={{ color: '#000' }}>16</Text>
+            <Text style={{ color: '#000' }}>{company.likeCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() =>
               navigation.navigate('CompanyComments', {
-                companyId: company.id,
+                companyId: company._id,
               })
             }
             style={{
@@ -219,7 +239,7 @@ const CompanyDetailScreen = () => {
             }}
           >
             <Icon name="chat" size="s" />
-            <Text style={{ color: '#000' }}>24</Text>
+            <Text style={{ color: '#000' }}>{company.comments.length}</Text>
           </TouchableOpacity>
         </View>
         <View
@@ -236,7 +256,7 @@ const CompanyDetailScreen = () => {
               color: '#808792',
             }}
           >
-            {company.location.name}
+            {company.location}
           </Text>
         </View>
         <View
@@ -326,7 +346,7 @@ const CompanyDetailScreen = () => {
             }}
           >
             <Image
-              source={{ uri: company.createdBy?.photoUrl }}
+              source={{ uri: cdnImage(company.createdBy?.photoKey) }}
               style={{
                 height: 32,
                 width: 32,

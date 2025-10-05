@@ -2,11 +2,12 @@ import { ScrollView, Text, View } from 'react-native';
 import SubHeader from '../../components/SubHeader.tsx';
 import { useTranslation } from 'react-i18next';
 import HomeFeed from '../../components/Home/HomeFeed.tsx';
-import { mockComments, mockFeedItems } from '../Home/constants.ts';
+import { mockComments } from '../Home/constants.ts';
 import { RouteProp, useRoute } from '@react-navigation/core';
 import { HomeStackParamList } from '../../Navigation.tsx';
 import FeedComment from '../../components/Home/FeedComment.tsx';
 import FeedDetailFooter from '../../components/Home/FeedDetailFooter.tsx';
+import { useAppSelector } from '../../store';
 
 type FeedDetailRouteProp = RouteProp<HomeStackParamList, 'FeedDetail'>;
 
@@ -14,7 +15,8 @@ const FeedDetailScreen = () => {
   const { t } = useTranslation();
   const route = useRoute<FeedDetailRouteProp>();
   const { feedId } = route.params;
-  const foundFeed = mockFeedItems.find(item => item._id === feedId);
+  const { feed } = useAppSelector(state => state.feed);
+  const foundFeed = feed.find(item => item._id === feedId);
 
   if (!foundFeed) {
     return null;

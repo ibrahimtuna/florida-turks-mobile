@@ -25,9 +25,20 @@ import ForgotPasswordVerifyCodeScreen from './screens/ForgotPassword/VerifyCode.
 import ForgotPasswordNewPassScreen from './screens/ForgotPassword/NewPass.tsx';
 import { useAppSelector } from './store';
 import Toast from 'react-native-toast-message';
-import { REQUEST_GET_ME } from './api/requests.ts';
+import {
+  REQUEST_GET_COMPANY_CATEGORIES,
+  REQUEST_GET_EVENT_CATEGORIES,
+  REQUEST_GET_FEED_CATEGORIES,
+  REQUEST_GET_ME,
+} from './api/requests.ts';
 import { setUser } from './store/reducers/user.ts';
 import { useDispatch } from 'react-redux';
+import { setFeedCategories } from './store/reducers/feed.ts';
+import { setEventCategories } from './store/reducers/event.ts';
+import { setCompanyCategories } from './store/reducers/company.ts';
+import CreateCompanyScreen from './screens/CreateCompany';
+import CreateEventScreen from './screens/CreateEvent';
+import CreateFeed from './screens/CreateFeed';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -35,6 +46,7 @@ const Tab = createBottomTabNavigator();
 export type HomeStackParamList = {
   Home: undefined;
   FeedDetail: { feedId: string };
+  CreateFeed: undefined;
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -44,6 +56,7 @@ function HomeStackNavigator() {
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="Home" component={HomeScreen} />
       <HomeStack.Screen name="FeedDetail" component={FeedDetailScreen} />
+      <HomeStack.Screen name="CreateFeed" component={CreateFeed} />
     </HomeStack.Navigator>
   );
 }
@@ -51,6 +64,7 @@ function HomeStackNavigator() {
 export type EventStackParamList = {
   Events: undefined;
   EventDetail: { eventId: string };
+  CreateEvent: undefined;
 };
 
 const EventStack = createNativeStackNavigator<EventStackParamList>();
@@ -60,6 +74,7 @@ function EventStackNavigator() {
     <EventStack.Navigator screenOptions={{ headerShown: false }}>
       <EventStack.Screen name="Events" component={EventsScreen} />
       <EventStack.Screen name="EventDetail" component={EventDetailScreen} />
+      <EventStack.Screen name="CreateEvent" component={CreateEventScreen} />
     </EventStack.Navigator>
   );
 }
@@ -68,6 +83,7 @@ export type CompanyStackParamList = {
   Companies: undefined;
   CompanyDetail: { companyId: string };
   CompanyComments: { companyId: string };
+  CreateCompany: undefined;
 };
 
 const CompanyStack = createNativeStackNavigator<CompanyStackParamList>();
@@ -83,6 +99,10 @@ function CompanyStackNavigator() {
       <CompanyStack.Screen
         name="CompanyComments"
         component={CompanyCommentsScreen}
+      />
+      <CompanyStack.Screen
+        name="CreateCompany"
+        component={CreateCompanyScreen}
       />
     </CompanyStack.Navigator>
   );
@@ -130,6 +150,9 @@ const HIDE_TABBAR_ROUTES = [
   'CompanyComments',
   'ProfileSettings',
   'ChatDetail',
+  'CreateCompany',
+  'CreateEvent',
+  'CreateFeed',
 ];
 
 function TabNavigation() {
@@ -137,9 +160,26 @@ function TabNavigation() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    REQUEST_GET_ME().then(({ data }) => {
-      dispatch(setUser(data.user));
-    });
+    const promises = [
+      REQUEST_GET_ME(),
+      REQUEST_GET_FEED_CATEGORIES(),
+      REQUEST_GET_EVENT_CATEGORIES(),
+      REQUEST_GET_COMPANY_CATEGORIES(),
+    ];
+
+    Promise.all(promises)
+      .then(responses => {
+        const userData = responses[0].data.user;
+        const feedCategories = responses[1].data.items;
+        const eventCategories = responses[2].data.items;
+        const companyCategories = responses[3].data.items;
+
+        dispatch(setUser(userData));
+        dispatch(setFeedCategories(feedCategories));
+        dispatch(setEventCategories(eventCategories));
+        dispatch(setCompanyCategories(companyCategories));
+      })
+      .catch(err => console.log(err));
   }, [dispatch]);
 
   return (

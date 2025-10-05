@@ -1,25 +1,35 @@
-import React from 'react';
 import {
-  Modal,
-  View,
-  Text,
-  Pressable,
   FlatList,
   Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { EVENT_PARTICIPANT } from '../../store/types.ts';
-import { cdnImage } from '../../helpers.ts';
+import SearchInput from '../../SearchInput.tsx';
+import { OPTION_ITEM } from './types.ts';
 
 type Props = {
   visible: boolean;
   handleClose: () => void;
-  participants: EVENT_PARTICIPANT[];
+  options: OPTION_ITEM[];
+  handleSelect: (item: OPTION_ITEM) => void;
+  selected?: string;
 };
 
-const ParticipantsModal = ({ visible, handleClose, participants }: Props) => {
+const OptionModal = ({
+  visible,
+  handleClose,
+  options,
+  handleSelect,
+  selected,
+}: Props) => {
   const { t } = useTranslation();
+
   return (
     <Modal
       visible={visible}
@@ -61,17 +71,11 @@ const ParticipantsModal = ({ visible, handleClose, participants }: Props) => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-end',
                 marginBottom: 8,
-                borderBottomWidth: 1,
-                borderBottomColor: '#8080808C',
                 padding: 16,
               }}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600' }}>
-                {t('events.event_detail.participants')} ({participants.length})
-              </Text>
-
               <TouchableOpacity
                 onPress={handleClose}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -79,36 +83,31 @@ const ParticipantsModal = ({ visible, handleClose, participants }: Props) => {
                 <Text style={{ fontSize: 16 }}>{t('commons.close')}</Text>
               </TouchableOpacity>
             </View>
-
-            {/* List */}
-            <FlatList
-              data={participants}
-              keyExtractor={item => item._id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 16 }}
-              ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-              renderItem={({ item }) => (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingVertical: 6,
-                  }}
-                >
-                  <Image
-                    source={{ uri: cdnImage(item.photoKey) }}
+            <View style={{ paddingHorizontal: 16, gap: 8 }}>
+              <SearchInput />
+              <ScrollView
+                contentContainerStyle={{
+                  gap: 8,
+                  minHeight: 300,
+                }}
+              >
+                {options.map(option => (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => handleSelect(option)}
                     style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 16,
-                      backgroundColor: '#F3F4F6',
-                      marginRight: 12,
+                      paddingVertical: 16,
+                      paddingHorizontal: 8,
+                      backgroundColor:
+                        option.value === selected ? '#ddd' : '#f4f4f4',
+                      borderRadius: 12,
                     }}
-                  />
-                  <Text style={{ fontSize: 14 }}>{item.name}</Text>
-                </View>
-              )}
-            />
+                  >
+                    <Text>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
           </View>
         </Pressable>
       </Pressable>
@@ -116,4 +115,4 @@ const ParticipantsModal = ({ visible, handleClose, participants }: Props) => {
   );
 };
 
-export default ParticipantsModal;
+export default OptionModal;

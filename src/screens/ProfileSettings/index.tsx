@@ -1,18 +1,122 @@
 import {
-  ImageBackground,
   ScrollView,
   Switch,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
+  TextInput as RNTextInput,
+  ActivityIndicator,
 } from 'react-native';
 import SubHeader from '../../components/SubHeader.tsx';
 import { useTranslation } from 'react-i18next';
-import Icon from '../../components/Icon.tsx';
+import { useAppSelector } from '../../store';
+import { cdnImage } from '../../helpers.ts';
+import ProfilePhotoUpload from '../../components/ProfilePhotoUpload.tsx';
+import { useEffect, useState } from 'react';
+import PhoneInput from '../../components/Inputs/PhoneInput.tsx';
+import TextInput from '../../components/Inputs/TextInput.tsx';
+import { parsePhoneNumberFromString } from 'libphonenumber-js/mobile';
+import { REQUEST_UPDATE_ME } from '../../api/requests.ts';
+import { useNavigation } from '@react-navigation/core';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../store/reducers/user.ts';
+import MultilineTextInput from '../../components/Inputs/MultilineTextInput.tsx';
 
 const ProfileSettingsScreen = () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { user } = useAppSelector(state => state.user);
   const { t } = useTranslation();
+
+  const [photo, setPhoto] = useState(cdnImage(user.photoKey) || '');
+  const [name, setName] = useState(user.name || '');
+  const [surname, setSurname] = useState(user.surname || '');
+  const [bio, setBio] = useState(user.bio || '');
+  const [phoneCountry, setPhoneCountry] = useState('US');
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || '');
+  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState(
+    user.phoneNumber || '',
+  );
+  const [isNumberValid, setIsNumberValid] = useState(true);
+  const [location, setLocation] = useState(user.location || '');
+  const [shareContact, setShareContact] = useState(!!user.shareContact);
+  const [updateLoading, setUpdateLoading] = useState(false);
+
+  const [nameError, setNameError] = useState(false);
+  const [surnameError, setSurnameError] = useState(false);
+  const [locationError, setLocationError] = useState(false);
+  const [phoneNumberError, setPhoneNumberError] = useState(false);
+
+  useEffect(() => {
+    const parsed = parsePhoneNumberFromString(user.phoneNumber);
+    setPhoneCountry(parsed?.country || 'US');
+    if (parsed?.nationalNumber) {
+      setPhoneNumber(parsed?.nationalNumber);
+    }
+    setFormattedPhoneNumber(user.phoneNumber);
+  }, [user.phoneNumber]);
+
+  useEffect(() => {
+    if (nameError) {
+      setNameError(name.length < 3);
+    }
+    if (surnameError) {
+      setSurnameError(surname.length < 3);
+    }
+    if (locationError) {
+      setLocationError(!location);
+    }
+    if (phoneNumberError) {
+      setPhoneNumberError(!isNumberValid);
+    }
+  }, [
+    name,
+    nameError,
+    surname,
+    surnameError,
+    location,
+    locationError,
+    isNumberValid,
+    phoneNumberError,
+  ]);
+
+  const handleSave = () => {
+    let isError = false;
+    if (name.length < 3) {
+      isError = true;
+      setNameError(true);
+    }
+    if (surname.length < 3) {
+      isError = true;
+      setSurnameError(true);
+    }
+    if (!location) {
+      isError = true;
+      setLocationError(true);
+    }
+    if (!isNumberValid) {
+      isError = true;
+      setPhoneNumberError(true);
+    }
+    if (isError) {
+      return;
+    }
+    setUpdateLoading(true);
+    REQUEST_UPDATE_ME({
+      name,
+      surname,
+      bio,
+      phoneNumber: formattedPhoneNumber,
+      location,
+      shareContact,
+      photo: photo !== user.photoKey ? photo : undefined,
+    })
+      .then(({ data }) => {
+        dispatch(setUser(data.user));
+      })
+      .finally(() => setUpdateLoading(false));
+  };
+
   return (
     <View
       style={{
@@ -31,33 +135,7 @@ const ProfileSettingsScreen = () => {
         }}
       >
         <View style={{ alignItems: 'center' }}>
-          <ImageBackground
-            source={{ uri: 'https://randomuser.me/api/portraits/men/13.jpg' }}
-            style={{
-              height: 62,
-              width: 62,
-            }}
-            imageStyle={{
-              borderRadius: 31,
-            }}
-          >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={{
-                height: 32,
-                width: 32,
-                borderRadius: 16,
-                backgroundColor: '#E40E1A',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'absolute',
-                bottom: -8,
-                right: -8,
-              }}
-            >
-              <Icon name="camera" fill="#fff" size="xs" />
-            </TouchableOpacity>
-          </ImageBackground>
+          <ProfilePhotoUpload photo={photo} setPhoto={setPhoto} />
         </View>
 
         <View
@@ -68,201 +146,54 @@ const ProfileSettingsScreen = () => {
             marginTop: 16,
           }}
         >
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                color: '#8080808C',
-              }}
-            >
-              {t('profile_settings.name')}
-            </Text>
-            <TextInput
-              placeholder={t('profile_settings.name')}
-              placeholderTextColor="#9A9AA5"
-              value="Mehmet"
-              style={{
-                backgroundColor: '#7676801F',
-                paddingVertical: 10,
-                paddingHorizontal: 12,
-                borderRadius: 12,
-                marginTop: 4,
-                fontSize: 16,
-              }}
-            />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                color: '#8080808C',
-              }}
-            >
-              {t('profile_settings.surname')}
-            </Text>
-            <TextInput
-              placeholder={t('profile_settings.surname')}
-              placeholderTextColor="#9A9AA5"
-              value="Yılmaz"
-              style={{
-                backgroundColor: '#7676801F',
-                paddingVertical: 10,
-                paddingHorizontal: 12,
-                borderRadius: 12,
-                marginTop: 4,
-                fontSize: 16,
-              }}
-            />
-          </View>
-        </View>
-
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: '#8080808C',
-            borderRadius: 12,
-            height: 150,
-          }}
-        >
           <TextInput
-            placeholder={t('profile_settings.bio')}
-            multiline
-            numberOfLines={5}
-            value="Merhabalar, ben Mehmet. 5 yıldır amerikada avukat olarak
-            çalışmaktayım. Özellikle iş için yapılacak event’lerde sizlerle
-            tanışmak isterim."
-            placeholderTextColor="#8080808C"
-            style={{
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              fontSize: 16,
-            }}
+            value={name}
+            onChange={setName}
+            placeholder={t('profile_settings.name')}
+            label={t('profile_settings.name')}
+            error={nameError}
           />
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 6,
-              right: 8,
-            }}
-          >
-            <Text
-              style={{
-                color: '#8080808C',
-                fontSize: 16,
-              }}
-            >
-              {t('profile_settings.chars', {
-                char: 30,
-                total: 2500,
-              })}
-            </Text>
-          </View>
-        </View>
-
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text
-            style={{
-              color: '#8080808C',
-            }}
-          >
-            {t('profile_settings.email')}
-          </Text>
           <TextInput
-            placeholder={t('profile_settings.email')}
-            placeholderTextColor="#9A9AA5"
-            editable={false}
-            value="mehmet@gmail.com"
-            style={{
-              backgroundColor: '#7676801F',
-              paddingVertical: 10,
-              paddingHorizontal: 12,
-              borderRadius: 12,
-              marginTop: 4,
-              fontSize: 16,
-              opacity: 0.6,
-            }}
-          />
-          <Text
-            style={{
-              fontSize: 12,
-              color: '#8080808C',
-              marginTop: 4,
-            }}
-          >
-            {t('profile_settings.email_cannot_change')}
-          </Text>
-        </View>
-
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text
-            style={{
-              color: '#8080808C',
-            }}
-          >
-            {t('profile_settings.phone_number')}
-          </Text>
-          <TextInput
-            placeholder={t('profile_settings.phone_number')}
-            placeholderTextColor="#9A9AA5"
-            editable={false}
-            value="+1 543 733 8392"
-            style={{
-              backgroundColor: '#7676801F',
-              paddingVertical: 10,
-              paddingHorizontal: 12,
-              borderRadius: 12,
-              marginTop: 4,
-              fontSize: 16,
-            }}
+            value={surname}
+            onChange={setSurname}
+            placeholder={t('profile_settings.surname')}
+            label={t('profile_settings.surname')}
+            error={surnameError}
           />
         </View>
 
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text
-            style={{
-              color: '#8080808C',
-            }}
-          >
-            {t('profile_settings.location')}
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#7676801F',
-              paddingVertical: 10,
-              paddingHorizontal: 12,
-              borderRadius: 12,
-              marginTop: 4,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-            }}
-          >
-            <Icon name="locationPoint" fill="#808792" size="xs" />
-            <TextInput
-              placeholder={t('profile_settings.location')}
-              placeholderTextColor="#9A9AA5"
-              editable={false}
-              value="Boston, MA"
-              style={{
-                fontSize: 16,
-              }}
-            />
-          </View>
-        </View>
+        <MultilineTextInput
+          value={bio}
+          onChange={setBio}
+          placeholder={t('profile_settings.bio')}
+        />
+
+        <TextInput
+          label={t('profile_settings.email')}
+          placeholder={t('profile_settings.email')}
+          value={user.email}
+          onChange={() => null}
+          disabled
+          helperText={t('profile_settings.email_cannot_change')}
+        />
+
+        <PhoneInput
+          countryCode={phoneCountry}
+          value={phoneNumber}
+          onChange={setPhoneNumber}
+          onFormattedValueChange={setFormattedPhoneNumber}
+          setIsValid={setIsNumberValid}
+          error={phoneNumberError}
+        />
+
+        <TextInput
+          label={t('profile_settings.location')}
+          placeholder={t('profile_settings.location')}
+          value={location}
+          onChange={setLocation}
+          icon="locationPoint"
+          error={locationError}
+        />
 
         <View
           style={{
@@ -284,7 +215,10 @@ const ProfileSettingsScreen = () => {
           >
             {t('profile_settings.share_contact_data')}
           </Text>
-          <Switch />
+          <Switch
+            value={shareContact}
+            onChange={() => setShareContact(!shareContact)}
+          />
         </View>
 
         <View
@@ -298,6 +232,8 @@ const ProfileSettingsScreen = () => {
         >
           <TouchableOpacity
             activeOpacity={0.8}
+            disabled={updateLoading}
+            onPress={() => navigation.goBack()}
             style={{
               borderWidth: 1,
               borderColor: '#8080808C',
@@ -319,16 +255,23 @@ const ProfileSettingsScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={handleSave}
+            disabled={updateLoading}
             style={{
               borderWidth: 1,
               borderColor: '#E40E1A',
               backgroundColor: '#E40E1A',
               flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'center',
               alignItems: 'center',
               paddingVertical: 12,
               borderRadius: 12,
             }}
           >
+            {updateLoading && (
+              <ActivityIndicator style={{ marginRight: 8 }} color="#fff" />
+            )}
             <Text
               style={{
                 fontWeight: '500',
