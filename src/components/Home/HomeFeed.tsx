@@ -129,8 +129,10 @@ const HomeFeed = ({ item }: Props) => {
           </TouchableOpacity>
         </View>
         <FeedActionButtons
+          feedId={item._id}
           commentCount={item.comments.length}
           likeCount={item.likeCount}
+          isLiked={item.isLiked}
         />
       </TouchableOpacity>
     );
@@ -239,8 +241,10 @@ const HomeFeed = ({ item }: Props) => {
         />
       )}
       <FeedActionButtons
+        feedId={item._id}
         commentCount={item.comments.length}
         likeCount={item.likeCount}
+        isLiked={item.isLiked}
       />
     </TouchableOpacity>
   );

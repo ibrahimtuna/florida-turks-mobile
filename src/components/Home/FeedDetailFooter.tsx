@@ -1,13 +1,92 @@
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Icon from '../Icon.tsx';
 import { useState } from 'react';
+import { useAppSelector } from '../../store';
+import { cdnImage } from '../../helpers.ts';
+import { REQUEST_CREATE_COMMENT } from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
+import { addFeedComment } from '../../store/reducers/feed.ts';
+import { addCompanyComment } from '../../store/reducers/company.ts';
 
-const FeedDetailFooter = () => {
+type Props = {
+  hocId: string;
+  type: 'feed' | 'company';
+};
+
+const FeedDetailFooter = ({ hocId, type }: Props) => {
+  const dispatch = useDispatch();
+  const { user } = useAppSelector(state => state.user);
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const [comment, setComment] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreateComment = () => {
+    if (!hocId) {
+      return;
+    }
+    setIsLoading(true);
+    REQUEST_CREATE_COMMENT({
+      hocId,
+      type,
+      context: comment,
+    })
+      .then(({ data }) => {
+        console.log('data ', data);
+        if (type === 'feed') {
+          dispatch(
+            addFeedComment({
+              feedId: data.feedId,
+              comment: {
+                createdAt: data.comment.createdAt,
+                context: data.comment.context,
+                _id: data.comment._id,
+                likeCount: 0,
+                isLiked: false,
+                subComments: [],
+                createdBy: {
+                  _id: user._id,
+                  name: user.name,
+                  surname: user.surname,
+                  photoKey: user.photoKey,
+                },
+              },
+            }),
+          );
+        } else {
+          dispatch(
+            addCompanyComment({
+              companyId: data.companyId,
+              comment: {
+                createdAt: data.comment.createdAt,
+                context: data.comment.context,
+                _id: data.comment._id,
+                likeCount: 0,
+                isLiked: false,
+                subComments: [],
+                createdBy: {
+                  _id: user._id,
+                  name: user.name,
+                  surname: user.surname,
+                  photoKey: user.photoKey,
+                },
+              },
+            }),
+          );
+        }
+        setComment('');
+      })
+      .finally(() => setIsLoading(false));
+  };
 
   return (
     <View
@@ -26,7 +105,7 @@ const FeedDetailFooter = () => {
         }}
       >
         <Image
-          source={{ uri: 'https://randomuser.me/api/portraits/men/94.jpg' }}
+          source={{ uri: cdnImage(user.photoKey) }}
           style={{
             height: 32,
             width: 32,
@@ -72,7 +151,8 @@ const FeedDetailFooter = () => {
         </Text>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => null}
+          onPress={handleCreateComment}
+          disabled={isLoading}
           style={{
             backgroundColor: '#E40E1A',
             padding: 8,
@@ -82,6 +162,13 @@ const FeedDetailFooter = () => {
             gap: 8,
           }}
         >
+          {isLoading && (
+            <ActivityIndicator
+              color="#fff"
+              style={{ marginRight: 8 }}
+              size="small"
+            />
+          )}
           <Icon name="send" fill="#fff" size="xs" />
           <Text
             style={{

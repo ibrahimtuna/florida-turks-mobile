@@ -36,6 +36,7 @@ import handMoney from './hand-money.svg';
 import peopleCircle from './people-circle.svg';
 import close from './close.svg';
 import gallery from './gallery.svg';
+import heartFilled from './heart-filled.svg';
 
 export type IconName = keyof typeof Icons;
 
@@ -78,6 +79,7 @@ const Icons = {
   peopleCircle,
   close,
   gallery,
+  heartFilled,
 };
 
 export default Icons;

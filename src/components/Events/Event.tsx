@@ -1,23 +1,43 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from '../Icon.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/core';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { EVENT } from '../../store/types.ts';
 import { cdnImage } from '../../helpers.ts';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import i18n from '../../i18n.ts';
 import { useAppSelector } from '../../store';
+import {
+  REQUEST_JOIN_EVENT,
+  REQUEST_WITHDRAW_EVENT,
+} from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
+import { joinEvent, withdrawEvent } from '../../store/reducers/event.ts';
 
 type Props = {
   item: EVENT;
 };
 
 const Event = ({ item }: Props) => {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
   const { language } = i18n;
   const { categories } = useAppSelector(state => state.event);
+  const { user } = useAppSelector(state => state.user);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isJoined = useMemo(() => {
+    return item.participants.find(i => i._id === user._id);
+  }, [item.participants, user._id]);
 
   const categoryName = useMemo(() => {
     const foundCategory = categories.find(c => c._id === item.categoryId);
@@ -26,6 +46,67 @@ const Event = ({ item }: Props) => {
     }
     return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
   }, [language, categories, item.categoryId]);
+
+  const handleJoin = () => {
+    Alert.alert(t('events.join_alert_title'), t('events.join_alert_desc'), [
+      {
+        text: t('commons.cancel'),
+      },
+      {
+        text: t('commons.confirm'),
+        onPress: async () => {
+          try {
+            setIsLoading(true);
+            await REQUEST_JOIN_EVENT({ eventId: item._id });
+            dispatch(
+              joinEvent({
+                eventId: item._id,
+                participant: {
+                  _id: user._id,
+                  name: user.name,
+                  surname: user.surname,
+                  photoKey: user.photoKey,
+                },
+              }),
+            );
+          } catch (error) {
+            console.error('Withdraw error:', error);
+          } finally {
+            setIsLoading(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleWithdraw = () => {
+    Alert.alert(
+      t('events.withdraw_event_title'),
+      t('events.withdraw_event_desc'),
+      [
+        {
+          text: t('commons.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('events.withdraw_accept'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              await REQUEST_WITHDRAW_EVENT({ eventId: item._id });
+              dispatch(withdrawEvent({ eventId: item._id, userId: user._id }));
+            } catch (error) {
+              console.error('Withdraw error:', error);
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   return (
     <TouchableOpacity
@@ -109,7 +190,7 @@ const Event = ({ item }: Props) => {
                 color: '#808792',
               }}
             >
-              {item.location}
+              {item.location.displayName}
             </Text>
           </View>
           <View
@@ -228,20 +309,26 @@ const Event = ({ item }: Props) => {
           </View>
           <TouchableOpacity
             activeOpacity={0.8}
+            disabled={isLoading}
+            onPress={isJoined ? handleWithdraw : handleJoin}
             style={{
-              backgroundColor: '#E40E1A',
+              backgroundColor: isJoined ? '#34C759' : '#E40E1A',
               paddingVertical: 8,
               paddingHorizontal: 12,
               borderRadius: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
             }}
           >
+            {isLoading && <ActivityIndicator color="#fff" />}
             <Text
               style={{
                 fontWeight: '500',
                 color: '#fff',
               }}
             >
-              {t('commons.join')}
+              {t(isJoined ? 'commons.joined' : 'commons.join')}
             </Text>
           </TouchableOpacity>
         </View>

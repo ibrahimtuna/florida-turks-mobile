@@ -19,6 +19,8 @@ import { useNavigation } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { REQUEST_CREATE_COMPANY } from '../../api/requests.ts';
 import PhoneInput from '../../components/Inputs/PhoneInput.tsx';
+import { LOCATION } from '../../components/Inputs/LocationInput/types.ts';
+import LocationInput from '../../components/Inputs/LocationInput';
 
 const CreateCompanyScreen = () => {
   const { bottom } = useSafeAreaInsets();
@@ -33,7 +35,7 @@ const CreateCompanyScreen = () => {
   const [companyName, setCompanyName] = useState('');
   const [companyDesc, setCompanyDesc] = useState('');
   const [companyEmail, setCompanyEmail] = useState('');
-  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyAddress, setCompanyAddress] = useState<LOCATION>();
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
@@ -145,7 +147,7 @@ const CreateCompanyScreen = () => {
       logo,
       banner,
       website: companyWebsite,
-      location: companyAddress,
+      location: companyAddress!,
       email: companyEmail,
       phoneNumber: formattedPhoneNumber,
     })
@@ -221,7 +223,7 @@ const CreateCompanyScreen = () => {
           setIsValid={setIsPhoneNumberValid}
           error={phoneNumberError}
         />
-        <TextInput
+        <LocationInput
           value={companyAddress}
           onChange={setCompanyAddress}
           label={t('companies.create_company.address')}

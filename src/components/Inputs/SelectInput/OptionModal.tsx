@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SearchInput from '../../SearchInput.tsx';
 import { OPTION_ITEM } from './types.ts';
+import { useDebounce } from '../../../hooks/useDebounce.ts';
 
 type Props = {
   visible: boolean;
@@ -29,6 +30,8 @@ const OptionModal = ({
   selected,
 }: Props) => {
   const { t } = useTranslation();
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebounce(searchText, 2000);
 
   return (
     <Modal
@@ -84,7 +87,7 @@ const OptionModal = ({
               </TouchableOpacity>
             </View>
             <View style={{ paddingHorizontal: 16, gap: 8 }}>
-              <SearchInput />
+              <SearchInput value={searchText} onChange={setSearchText} />
               <ScrollView
                 contentContainerStyle={{
                   gap: 8,

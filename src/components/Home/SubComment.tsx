@@ -1,12 +1,16 @@
-import { ISubComment } from '../../screens/Home/constants.ts';
+import { SUB_COMMENT } from '../../store/types.ts';
 import { Image, Text, View } from 'react-native';
 import CommentActionButtons from './CommentActionButtons.tsx';
+import { cdnImage, formatCommentDate } from '../../helpers.ts';
 
 type Props = {
-  item: ISubComment;
+  item: SUB_COMMENT;
+  type: 'feed' | 'company';
+  hocId: string;
+  commentId: string;
 };
 
-const SubComment = ({ item }: Props) => {
+const SubComment = ({ hocId, type, item, commentId }: Props) => {
   return (
     <View
       style={{
@@ -17,7 +21,7 @@ const SubComment = ({ item }: Props) => {
       }}
     >
       <Image
-        source={{ uri: item.profilePhotoUrl }}
+        source={{ uri: cdnImage(item.createdBy.photoKey) }}
         style={{ height: 32, width: 32, borderRadius: 16 }}
       />
 
@@ -38,7 +42,7 @@ const SubComment = ({ item }: Props) => {
               color: '#000',
             }}
           >
-            {item.profileName}
+            {`${item.createdBy.name} ${item.createdBy.surname}`}
           </Text>
           <Text
             style={{
@@ -46,10 +50,7 @@ const SubComment = ({ item }: Props) => {
               color: '#808792',
             }}
           >
-            {
-              // new Date(item.createdAt).toLocaleDateString()
-            }
-            2.32 PM
+            {formatCommentDate(item.createdAt)}
           </Text>
         </View>
         <Text
@@ -59,9 +60,17 @@ const SubComment = ({ item }: Props) => {
             marginTop: 12,
           }}
         >
-          {item.content}
+          {item.context}
         </Text>
-        <CommentActionButtons isSubComment />
+        <CommentActionButtons
+          likeCount={item.likeCount}
+          isLiked={item.isLiked}
+          isSubComment
+          hocId={hocId}
+          type={type}
+          commentId={commentId}
+          subCommentId={item._id}
+        />
       </View>
     </View>
   );

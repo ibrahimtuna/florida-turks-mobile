@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CATEGORY_ITEM, EVENT } from '../types.ts';
+import { CATEGORY_ITEM, EVENT, EVENT_PARTICIPANT } from '../types.ts';
 
 type State = {
   categories: CATEGORY_ITEM[];
@@ -21,9 +21,36 @@ export const eventSlice = createSlice({
     setEvents: (state, action: PayloadAction<EVENT[]>) => {
       state.events = action.payload;
     },
+    joinEvent: (
+      state,
+      action: PayloadAction<{
+        eventId: string;
+        participant: EVENT_PARTICIPANT;
+      }>,
+    ) => {
+      const { eventId, participant } = action.payload;
+      const event = state.events.find(e => e._id === eventId);
+      if (!event) return;
+      event.participants.push(participant);
+    },
+    withdrawEvent: (
+      state,
+      action: PayloadAction<{
+        eventId: string;
+        userId: string;
+      }>,
+    ) => {
+      const { eventId, userId } = action.payload;
+      const event = state.events.find(e => e._id === eventId);
+      if (!event) return;
+      event.participants = event.participants.filter(
+        item => item._id !== userId,
+      );
+    },
   },
 });
 
-export const { setEventCategories, setEvents } = eventSlice.actions;
+export const { setEventCategories, setEvents, joinEvent, withdrawEvent } =
+  eventSlice.actions;
 
 export default eventSlice.reducer;

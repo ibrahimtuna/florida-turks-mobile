@@ -18,6 +18,8 @@ import { useNavigation } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BannerPhotoUpload from '../../components/BannerPhotoUpload.tsx';
 import { REQUEST_CREATE_EVENT } from '../../api/requests.ts';
+import LocationInput from '../../components/Inputs/LocationInput';
+import { LOCATION } from '../../components/Inputs/LocationInput/types.ts';
 
 const CreateEventScreen = () => {
   const { bottom } = useSafeAreaInsets();
@@ -30,7 +32,7 @@ const CreateEventScreen = () => {
   const [eventCategory, setEventCategory] = useState('');
   const [eventTitle, setEventTitle] = useState('');
   const [eventDesc, setEventDesc] = useState('');
-  const [eventAddress, setEventAddress] = useState('');
+  const [eventAddress, setEventAddress] = useState<LOCATION>();
   const [maxParticipants, setMaxParticipants] = useState('');
   const [joinFee, setJoinFee] = useState('');
   const [organizerName, setOrganizerName] = useState('');
@@ -103,7 +105,7 @@ const CreateEventScreen = () => {
       maxParticipants: Number(maxParticipants) || 0,
       organizerName: organizerName,
       showProfile: shareProfile,
-      location: eventAddress,
+      location: eventAddress!,
       date: new Date().toISOString(),
       banner,
     })
@@ -179,13 +181,12 @@ const CreateEventScreen = () => {
             error={addressError}
           />
         </View>
-        <TextInput
+        <LocationInput
           value={eventAddress}
           onChange={setEventAddress}
           label={t('events.create_event.address')}
           placeholder={t('events.create_event.address')}
           icon="locationPoint"
-          error={addressError}
         />
         <TextInput
           value={maxParticipants}

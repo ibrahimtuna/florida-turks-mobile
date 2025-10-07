@@ -18,10 +18,14 @@ import { useAppSelector } from '../../store';
 import { useMemo } from 'react';
 import i18n from '../../i18n.ts';
 import { cdnImage } from '../../helpers.ts';
+import { toggleCompanyLike } from '../../store/reducers/company.ts';
+import { REQUEST_LIKE_COMPANY } from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
 
 type CompanyDetailRouteProp = RouteProp<CompanyStackParamList, 'CompanyDetail'>;
 
 const CompanyDetailScreen = () => {
+  const dispatch = useDispatch();
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { language } = i18n;
@@ -42,17 +46,30 @@ const CompanyDetailScreen = () => {
     return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
   }, [language, categories, company]);
 
+  const handleLike = () => {
+    if (!company) {
+      return;
+    }
+    dispatch(
+      toggleCompanyLike({
+        companyId: company._id,
+      }),
+    );
+    REQUEST_LIKE_COMPANY({
+      companyId: company._id,
+    });
+  };
+
   if (!company) {
     return null;
   }
   const openMap = () => {
+    if (company?.location?.coords?.coordinates?.length !== 2) {
+      return;
+    }
     const scheme = Platform.select({
-      ios: `maps:0,0?q=${company.name}@${company.location || 'lat'},${
-        company.location || 'lng'
-      }`,
-      android: `geo:0,0?q=${company.location || 'lat'},${
-        company.location || 'lng'
-      }(${company.name})`,
+      ios: `maps:0,0?q=${company.name}@${company.location.coords.coordinates[1]},${company.location.coords.coordinates[0]}`,
+      android: `geo:0,0?q=${company.location.coords.coordinates[1]},${company.location.coords.coordinates[0]}(${company.name})`,
     });
 
     if (scheme) {
@@ -216,13 +233,18 @@ const CompanyDetailScreen = () => {
         >
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={handleLike}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <Icon name="heartOutline" size="s" />
+            <Icon
+              name={company.isLiked ? 'heartFilled' : 'heartOutline'}
+              size="s"
+              fill={company.isLiked ? '#ff0000' : '#000'}
+            />
             <Text style={{ color: '#000' }}>{company.likeCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -256,7 +278,7 @@ const CompanyDetailScreen = () => {
               color: '#808792',
             }}
           >
-            {company.location}
+            {company.location.displayName}
           </Text>
         </View>
         <View

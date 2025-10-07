@@ -66,6 +66,10 @@ const resources = {
         join_alert_title: 'Do you confirm to join?',
         join_alert_desc:
           'You are about to register for the event. Do you confirm?',
+        withdraw_event_title: 'Confirm Withdrawal',
+        withdraw_event_desc:
+          'Are you sure you want to withdraw from this event?',
+        withdraw_accept: 'Yes, Withdraw',
       },
       companies: {
         search_placeholder: 'Search company',
@@ -168,6 +172,8 @@ const resources = {
         confirm_password: 'Confirm password',
         or: 'Or',
         continue: 'Continue',
+        search_location: 'Search a location',
+        joined: 'Joined',
       },
     },
   },
@@ -234,6 +240,9 @@ const resources = {
         join_alert_title: 'Kayıt yapılsın mı?',
         join_alert_desc:
           'Etkinliğe katılım kaydınız oluşturmak üzeresiniz. Onaylıyor musunuz?',
+        withdraw_event_title: 'Etkinlikten Ayrıl',
+        withdraw_event_desc: 'Bu etkinlikten ayrılmak istediğine emin misin?',
+        withdraw_accept: 'Evet, Ayrıl',
       },
       companies: {
         search_placeholder: 'Search company',
@@ -336,6 +345,8 @@ const resources = {
         confirm_password: 'Şifre (Tekrar)',
         or: 'yada',
         continue: 'İlerle',
+        search_location: 'Konum aratın',
+        joined: 'Katılıyorum',
       },
     },
   },

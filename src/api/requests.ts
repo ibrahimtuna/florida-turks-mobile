@@ -3,8 +3,12 @@ import {
   ENDPOINT_APPLE_LOGIN,
   ENDPOINT_COMPANY_CATEGORIES,
   ENDPOINT_CREATE_COMPANY,
+  ENDPOINT_CREATE_COMPANY_COMMENT,
+  ENDPOINT_CREATE_COMPANY_SUB_COMMENT,
   ENDPOINT_CREATE_EVENT,
   ENDPOINT_CREATE_FEED,
+  ENDPOINT_CREATE_FEED_COMMENT,
+  ENDPOINT_CREATE_FEED_SUB_COMMENT,
   ENDPOINT_DELETE_ACCOUNT,
   ENDPOINT_EVENT_CATEGORIES,
   ENDPOINT_FEED_CATEGORIES,
@@ -16,13 +20,20 @@ import {
   ENDPOINT_GET_FEEDS,
   ENDPOINT_GET_ME,
   ENDPOINT_GOOGLE_LOGIN,
+  ENDPOINT_JOIN_EVENT,
+  ENDPOINT_LIKE_COMPANY,
+  ENDPOINT_LIKE_FEED,
+  ENDPOINT_LIKE_FEED_COMMENT,
+  ENDPOINT_LIKE_FEED_SUB_COMMENT,
   ENDPOINT_LOGIN,
   ENDPOINT_ONBOARDING_COMPLETE,
   ENDPOINT_REGISTER,
   ENDPOINT_SEND_OTP,
   ENDPOINT_UPDATE_ME,
   ENDPOINT_VERIFY_OTP,
+  ENDPOINT_WITHDRAW_EVENT,
 } from './endpoints.ts';
+import { LOCATION } from '../components/Inputs/LocationInput/types.ts';
 
 export const REQUEST_LOGIN = ({
   email,
@@ -119,7 +130,7 @@ export const REQUEST_ONBOARDING_COMPLETE = ({
   name: string;
   surname: string;
   bio: string;
-  location: string;
+  location: LOCATION;
   phoneNumber: string;
   otpCode: string;
   photo: string;
@@ -128,7 +139,7 @@ export const REQUEST_ONBOARDING_COMPLETE = ({
   formData.append('name', name);
   formData.append('surname', surname);
   formData.append('bio', bio);
-  formData.append('location', location);
+  formData.append('location', JSON.stringify(location));
   formData.append('phoneNumber', phoneNumber);
   formData.append('otpCode', otpCode);
 
@@ -220,7 +231,7 @@ export const REQUEST_CREATE_COMPANY = ({
   categoryId: string;
   name: string;
   desc: string;
-  location: string;
+  location: LOCATION;
   email: string;
   phoneNumber: string;
   website: string;
@@ -232,7 +243,7 @@ export const REQUEST_CREATE_COMPANY = ({
   formData.append('name', name);
   formData.append('desc', desc);
   formData.append('email', email);
-  formData.append('location', location);
+  formData.append('location', JSON.stringify(location));
   formData.append('phoneNumber', phoneNumber);
   formData.append('website', website);
   if (logo) {
@@ -309,7 +320,7 @@ export const REQUEST_CREATE_EVENT = ({
   categoryId: string;
   title: string;
   desc: string;
-  location: string;
+  location: LOCATION;
   date: string;
   fee: number;
   showProfile: boolean;
@@ -321,7 +332,7 @@ export const REQUEST_CREATE_EVENT = ({
   formData.append('categoryId', categoryId);
   formData.append('title', title);
   formData.append('desc', desc);
-  formData.append('location', location);
+  formData.append('location', JSON.stringify(location));
   formData.append('date', date);
   formData.append('fee', fee);
   formData.append('showProfile', showProfile);
@@ -391,4 +402,109 @@ export const REQUEST_GET_FEEDS = ({
       page,
       categoryId,
     },
+  });
+
+export const REQUEST_CREATE_COMMENT = ({
+  hocId,
+  type,
+  context,
+}: {
+  hocId: string;
+  type: 'feed' | 'company';
+  context: string;
+}) => {
+  if (type === 'feed') {
+    return axios.post(ENDPOINT_CREATE_FEED_COMMENT, {
+      feedId: hocId,
+      context,
+    });
+  } else {
+    return axios.post(ENDPOINT_CREATE_COMPANY_COMMENT, {
+      companyId: hocId,
+      context,
+    });
+  }
+};
+
+export const REQUEST_CREATE_FEED_SUB_COMMENT = ({
+  feedId,
+  commentId,
+  context,
+}: {
+  feedId: string;
+  commentId: string;
+  context: string;
+}) =>
+  axios.post(ENDPOINT_CREATE_FEED_SUB_COMMENT, {
+    feedId,
+    commentId,
+    context,
+  });
+
+export const REQUEST_LIKE_FEED = ({ feedId }: { feedId: string }) =>
+  axios.post(ENDPOINT_LIKE_FEED, {
+    feedId,
+  });
+
+export const REQUEST_LIKE_COMMENT = ({
+  id,
+  commentId,
+  type,
+}: {
+  id: string;
+  commentId: string;
+  type: 'feed' | 'company';
+}) =>
+  axios.post(ENDPOINT_LIKE_FEED_COMMENT, {
+    id,
+    commentId,
+    type,
+  });
+
+export const REQUEST_LIKE_SUB_COMMENT = ({
+  id,
+  commentId,
+  subCommentId,
+  type,
+}: {
+  id: string;
+  commentId: string;
+  subCommentId: string;
+  type: 'feed' | 'company';
+}) =>
+  axios.post(ENDPOINT_LIKE_FEED_SUB_COMMENT, {
+    id,
+    commentId,
+    subCommentId,
+    type,
+  });
+
+export const REQUEST_LIKE_COMPANY = ({ companyId }: { companyId: string }) =>
+  axios.post(ENDPOINT_LIKE_COMPANY, {
+    companyId,
+  });
+
+export const REQUEST_CREATE_COMPANY_SUB_COMMENT = ({
+  companyId,
+  commentId,
+  context,
+}: {
+  companyId: string;
+  commentId: string;
+  context: string;
+}) =>
+  axios.post(ENDPOINT_CREATE_COMPANY_SUB_COMMENT, {
+    companyId,
+    commentId,
+    context,
+  });
+
+export const REQUEST_JOIN_EVENT = ({ eventId }: { eventId: string }) =>
+  axios.post(ENDPOINT_JOIN_EVENT, {
+    eventId,
+  });
+
+export const REQUEST_WITHDRAW_EVENT = ({ eventId }: { eventId: string }) =>
+  axios.post(ENDPOINT_WITHDRAW_EVENT, {
+    eventId,
   });

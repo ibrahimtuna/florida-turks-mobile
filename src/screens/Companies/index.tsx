@@ -18,6 +18,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { REQUEST_GET_COMPANIES } from '../../api/requests.ts';
 import { useDispatch } from 'react-redux';
 import { setCompanies } from '../../store/reducers/company.ts';
+import { useDebounce } from '../../hooks/useDebounce.ts';
 
 const CompaniesScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -27,6 +28,12 @@ const CompaniesScreen = () => {
   const { categories, companies } = useAppSelector(state => state.company);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebounce(searchText, 2000);
+
+  useEffect(() => {
+    console.log(debouncedSearch);
+  }, [debouncedSearch]);
 
   const CATEGORIES = useMemo(() => {
     return [
@@ -78,7 +85,11 @@ const CompaniesScreen = () => {
           gap: 12,
         }}
       >
-        <SearchInput placeholder={t('companies.search_placeholder')} />
+        <SearchInput
+          placeholder={t('companies.search_placeholder')}
+          value={searchText}
+          onChange={setSearchText}
+        />
         <View
           style={{
             flexDirection: 'row',

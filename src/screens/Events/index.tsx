@@ -18,6 +18,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { REQUEST_GET_EVENTS } from '../../api/requests.ts';
 import { useDispatch } from 'react-redux';
 import { setEvents } from '../../store/reducers/event.ts';
+import { useDebounce } from '../../hooks/useDebounce.ts';
 
 const EventsScreen = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,8 @@ const EventsScreen = () => {
   const { events, categories } = useAppSelector(state => state.event);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebounce(searchText, 2000);
 
   const CATEGORIES = useMemo(() => {
     return [
@@ -41,6 +44,10 @@ const EventsScreen = () => {
       })),
     ];
   }, [t, categories, language]);
+
+  useEffect(() => {
+    console.log(debouncedSearch);
+  }, [debouncedSearch]);
 
   const fetchEvents = useCallback(() => {
     setIsLoading(true);
@@ -78,7 +85,11 @@ const EventsScreen = () => {
           gap: 12,
         }}
       >
-        <SearchInput placeholder={t('events.search_placeholder')} />
+        <SearchInput
+          value={searchText}
+          onChange={setSearchText}
+          placeholder={t('events.search_placeholder')}
+        />
         <View
           style={{
             flexDirection: 'row',

@@ -4,20 +4,30 @@ export type CATEGORY_ITEM = {
   englishTitle: string;
 };
 
+type LOCATION = {
+  addressId: string;
+  coords: {
+    coordinates: number[];
+  };
+  displayName: string;
+  formattedAddress: string;
+}
+
 export type COMPANY = {
   _id: string;
   categoryId: string;
-  comments: [];
+  comments: COMMENT[];
   coverPhotoKey: string;
   desc: string;
   email: string;
   likeCount: number;
-  location: string;
+  location: LOCATION;
   logoKey: string;
   name: string;
   phoneNumber: string;
   website: string;
   createdAt: string;
+  isLiked: boolean;
   createdBy: {
     _id: string;
     name: string;
@@ -41,7 +51,7 @@ export type EVENT = {
   date: string;
   desc: string;
   fee: number;
-  location: string;
+  location: LOCATION;
   maxParticipants: number;
   organizer: string;
   participants: EVENT_PARTICIPANT[];
@@ -52,15 +62,45 @@ export type EVENT = {
   updatedBy: string;
 };
 
+export type SUB_COMMENT = {
+  _id: string;
+  context: string;
+  isLiked: boolean;
+  likeCount: number;
+  createdBy: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
+  createdAt: string;
+};
+
+export type COMMENT = {
+  _id: string;
+  context: string;
+  isLiked: boolean;
+  likeCount: number;
+  createdBy: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
+  createdAt: string;
+  subComments: SUB_COMMENT[];
+};
+
 export type FEED = {
   _id: string;
   context: string;
-  comments: [];
+  comments: COMMENT[];
   createdAt: string;
   createdBy: { _id: string; name: string; photoKey: string; surname: string };
   feedCategoryId: string;
   kind: 'feed' | 'ad';
   likeCount: number;
+  isLiked: boolean;
   updatedAt: string;
   photoKey?: string;
 };

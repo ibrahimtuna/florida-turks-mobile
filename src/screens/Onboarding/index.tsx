@@ -1,13 +1,11 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Icon from '../../components/Icon.tsx';
 import { useTranslation } from 'react-i18next';
 import OtpVerifyModal from './OtpVerifyModal.tsx';
 import { useEffect, useState } from 'react';
@@ -23,8 +21,9 @@ import AllPageLoading from '../../components/AllPageLoading.tsx';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../store/reducers/user.ts';
 import PhoneInput from '../../components/Inputs/PhoneInput.tsx';
-import Toast from 'react-native-toast-message';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import LocationInput from '../../components/Inputs/LocationInput';
+import { LOCATION } from '../../components/Inputs/LocationInput/types.ts';
 
 const OnboardingScreen = () => {
   const { t } = useTranslation();
@@ -38,7 +37,7 @@ const OnboardingScreen = () => {
   const [bio, setBio] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [formattedPhoneNumber, setFormattedPhoneNumber] = useState('');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState<LOCATION>();
   const [isContinueLoading, setIsContinueLoading] = useState(false);
   const [onboardingFinalizeLoading, setOnboardingFinalizeLoading] =
     useState(false);
@@ -57,7 +56,7 @@ const OnboardingScreen = () => {
       setSurnameError(surname.length < 3);
     }
     if (locationError) {
-      setLocationError(location.length < 3);
+      setLocationError(!location);
     }
     if (photoError) {
       setPhotoError(!photo);
@@ -88,7 +87,7 @@ const OnboardingScreen = () => {
       isError = true;
       setSurnameError(true);
     }
-    if (location.length < 3) {
+    if (!location) {
       isError = true;
       setLocationError(true);
     }
@@ -118,7 +117,7 @@ const OnboardingScreen = () => {
       surname,
       bio,
       photo,
-      location,
+      location: location!,
       phoneNumber: formattedPhoneNumber,
       otpCode: code,
     })
@@ -282,47 +281,15 @@ const OnboardingScreen = () => {
             error={phoneNumberError}
           />
 
-          <View
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Text
-              style={{
-                color: '#8080808C',
-              }}
-            >
-              {t('profile_settings.location')}
-            </Text>
-            <View
-              style={{
-                backgroundColor: '#7676801F',
-                paddingVertical: 10,
-                paddingHorizontal: 12,
-                borderRadius: 12,
-                marginTop: 4,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 8,
-                height: 48,
-                borderWidth: 1,
-                borderColor: !locationError ? '#7676801F' : '#ff0000',
-              }}
-            >
-              <Icon name="locationPoint" fill="#808792" size="xs" />
-              <TextInput
-                placeholder={t('profile_settings.location')}
-                placeholderTextColor="#9A9AA5"
-                value={location}
-                onChangeText={setLocation}
-                style={{
-                  fontSize: 16,
-                  width: '100%',
-                }}
-              />
-            </View>
-          </View>
+          <LocationInput
+            value={location}
+            onChange={setLocation}
+            error={locationError}
+            isCities
+            icon="locationPoint"
+            placeholder={t('profile_settings.location')}
+            label={t('profile_settings.location')}
+          />
 
           <View
             style={{

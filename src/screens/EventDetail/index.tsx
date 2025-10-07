@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Linking,
@@ -20,18 +21,32 @@ import { useMemo, useState } from 'react';
 import { useAppSelector } from '../../store';
 import { cdnImage } from '../../helpers.ts';
 import i18n from '../../i18n.ts';
+import {
+  REQUEST_JOIN_EVENT,
+  REQUEST_WITHDRAW_EVENT,
+} from '../../api/requests.ts';
+import { joinEvent, withdrawEvent } from '../../store/reducers/event.ts';
+import { useDispatch } from 'react-redux';
 
 type EventDetailRouteProp = RouteProp<EventStackParamList, 'EventDetail'>;
 
 const EventDetailScreen = () => {
+  const dispatch = useDispatch();
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { language } = i18n;
   const { events, categories } = useAppSelector(state => state.event);
+  const { user } = useAppSelector(state => state.user);
   const route = useRoute<EventDetailRouteProp>();
   const { eventId } = route.params;
   const event = events.find(item => item._id === eventId);
   const [showParticipants, setShowParticipants] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isJoined = useMemo(() => {
+    if (!event) return false;
+    return event.participants.find(i => i._id === user._id);
+  }, [event, user._id]);
 
   const categoryName = useMemo(() => {
     if (!event) {
@@ -60,15 +75,65 @@ const EventDetailScreen = () => {
     }
   };
 
-  const handlePromptJoinEvent = () => {
+  const handleJoin = () => {
     Alert.alert(t('events.join_alert_title'), t('events.join_alert_desc'), [
       {
         text: t('commons.cancel'),
       },
       {
         text: t('commons.confirm'),
+        onPress: async () => {
+          try {
+            setIsLoading(true);
+            await REQUEST_JOIN_EVENT({ eventId: event._id });
+            dispatch(
+              joinEvent({
+                eventId: event._id,
+                participant: {
+                  _id: user._id,
+                  name: user.name,
+                  surname: user.surname,
+                  photoKey: user.photoKey,
+                },
+              }),
+            );
+          } catch (error) {
+            console.error('Withdraw error:', error);
+          } finally {
+            setIsLoading(false);
+          }
+        },
       },
     ]);
+  };
+
+  const handleWithdraw = () => {
+    Alert.alert(
+      t('events.withdraw_event_title'),
+      t('events.withdraw_event_desc'),
+      [
+        {
+          text: t('commons.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('events.withdraw_accept'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              await REQUEST_WITHDRAW_EVENT({ eventId: event._id });
+              dispatch(withdrawEvent({ eventId: event._id, userId: user._id }));
+            } catch (error) {
+              console.error('Withdraw error:', error);
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   return (
@@ -164,7 +229,8 @@ const EventDetailScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={handlePromptJoinEvent}
+              onPress={isJoined ? handleWithdraw : handleJoin}
+              disabled={isLoading}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -172,13 +238,14 @@ const EventDetailScreen = () => {
                 gap: 10,
                 paddingVertical: 8,
                 paddingHorizontal: 12,
-                backgroundColor: '#E40E1A',
+                backgroundColor: isJoined ? '#34C759' : '#E40E1A',
                 borderRadius: 12,
                 borderWidth: 1,
-                borderColor: '#E40E1A',
+                borderColor: isJoined ? '#34C759' : '#E40E1A',
                 height: 42,
               }}
             >
+              {isLoading && <ActivityIndicator color="#fff" />}
               <Text
                 style={{
                   fontWeight: '500',
@@ -186,7 +253,7 @@ const EventDetailScreen = () => {
                   color: '#FFF',
                 }}
               >
-                {t('commons.join')}
+                {t(isJoined ? 'commons.joined' : 'commons.join')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -205,7 +272,7 @@ const EventDetailScreen = () => {
               color: '#808792',
             }}
           >
-            {event.location}
+            {event.location.displayName}
           </Text>
         </View>
         <View
@@ -432,33 +499,43 @@ const EventDetailScreen = () => {
         </Text>
         <Text
           style={{
+            color: '#1a1a1a',
+            fontSize: 14,
+          }}
+        >
+          {event.location.displayName}
+        </Text>
+        <Text
+          style={{
             color: '#808792',
             fontSize: 12,
           }}
         >
-          {event.location}
+          {event.location.formattedAddress}
         </Text>
-        <MapView
-          initialRegion={{
-            latitude: 0, // event.location,.lat
-            longitude: 0, // event.location.lng
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          style={{
-            width: '100%',
-            height: 300,
-            borderRadius: 12,
-            overflow: 'hidden',
-          }}
-        >
-          <Marker
-            coordinate={{
-              latitude: 0, // event.location,.lat
-              longitude: 0, // event.location.lng
+        {event.location?.coords?.coordinates?.length === 2 && (
+          <MapView
+            initialRegion={{
+              latitude: event.location.coords.coordinates[1],
+              longitude: event.location.coords.coordinates[0],
+              latitudeDelta: 0.0122,
+              longitudeDelta: 0.0121,
             }}
-          />
-        </MapView>
+            style={{
+              width: '100%',
+              height: 300,
+              borderRadius: 12,
+              overflow: 'hidden',
+            }}
+          >
+            <Marker
+              coordinate={{
+                latitude: event.location.coords.coordinates[1],
+                longitude: event.location.coords.coordinates[0],
+              }}
+            />
+          </MapView>
+        )}
       </ScrollView>
     </View>
   );

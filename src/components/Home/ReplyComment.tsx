@@ -1,16 +1,104 @@
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from '../Icon.tsx';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { useAppSelector } from '../../store';
+import { cdnImage } from '../../helpers.ts';
+import {
+  REQUEST_CREATE_COMPANY_SUB_COMMENT,
+  REQUEST_CREATE_FEED_SUB_COMMENT,
+} from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
+import { addFeedSubComment } from '../../store/reducers/feed.ts';
+import { addCompanySubComment } from '../../store/reducers/company.ts';
 
 type Props = {
+  hocId: string;
+  type: 'feed' | 'company';
+  commentId: string;
   onCancelPress: () => void;
 };
 
-const ReplyComment = ({ onCancelPress }: Props) => {
+const ReplyComment = ({ hocId, type, commentId, onCancelPress }: Props) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { user } = useAppSelector(state => state.user);
   const [comment, setComment] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreateSubComment = () => {
+    setIsLoading(true);
+    if (type === 'feed') {
+      REQUEST_CREATE_FEED_SUB_COMMENT({
+        feedId: hocId,
+        commentId,
+        context: comment,
+      })
+        .then(({ data }) => {
+          dispatch(
+            addFeedSubComment({
+              feedId: data.feedId,
+              commentId: data.commentId,
+              comment: {
+                _id: data.subComment._id,
+                isLiked: false,
+                createdAt: data.subComment.createdAt,
+                context: data.subComment.context,
+                likeCount: 0,
+                createdBy: {
+                  _id: user._id,
+                  name: user.name,
+                  surname: user.surname,
+                  photoKey: user.photoKey,
+                },
+              },
+            }),
+          );
+          setComment('');
+          onCancelPress();
+        })
+        .catch(err => console.log(err))
+        .finally(() => setIsLoading(false));
+    } else {
+      REQUEST_CREATE_COMPANY_SUB_COMMENT({
+        companyId: hocId,
+        commentId,
+        context: comment,
+      })
+        .then(({ data }) => {
+          dispatch(
+            addCompanySubComment({
+              companyId: data.companyId,
+              commentId: data.commentId,
+              comment: {
+                _id: data.subComment._id,
+                isLiked: false,
+                createdAt: data.subComment.createdAt,
+                context: data.subComment.context,
+                likeCount: 0,
+                createdBy: {
+                  _id: user._id,
+                  name: user.name,
+                  surname: user.surname,
+                  photoKey: user.photoKey,
+                },
+              },
+            }),
+          );
+          setComment('');
+          onCancelPress();
+        })
+        .catch(err => console.log(err))
+        .finally(() => setIsLoading(false));
+    }
+  };
 
   return (
     <View
@@ -27,7 +115,7 @@ const ReplyComment = ({ onCancelPress }: Props) => {
         }}
       >
         <Image
-          source={{ uri: 'https://randomuser.me/api/portraits/men/94.jpg' }}
+          source={{ uri: cdnImage(user.photoKey) }}
           style={{
             height: 32,
             width: 32,
@@ -39,6 +127,7 @@ const ReplyComment = ({ onCancelPress }: Props) => {
           numberOfLines={3}
           maxLength={500}
           value={comment}
+          autoFocus
           onChangeText={setComment}
           placeholder={t('home.feed_detail.comment_placeholder')}
           style={{
@@ -81,6 +170,7 @@ const ReplyComment = ({ onCancelPress }: Props) => {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onCancelPress}
+            disabled={isLoading}
             style={{
               backgroundColor: '#fff',
               padding: 8,
@@ -102,7 +192,8 @@ const ReplyComment = ({ onCancelPress }: Props) => {
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => null}
+            disabled={isLoading}
+            onPress={handleCreateSubComment}
             style={{
               backgroundColor: '#E40E1A',
               padding: 8,
@@ -112,6 +203,13 @@ const ReplyComment = ({ onCancelPress }: Props) => {
               gap: 8,
             }}
           >
+            {isLoading && (
+              <ActivityIndicator
+                size={10}
+                color="#fff"
+                style={{ marginRight: 4, marginLeft: 4 }}
+              />
+            )}
             <Icon name="send" fill="#fff" size="xs" />
             <Text
               style={{

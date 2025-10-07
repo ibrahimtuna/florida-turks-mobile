@@ -1,6 +1,6 @@
 export const CDN_URL = 'https://d2k5cbh8rxeqa0.cloudfront.net';
 
-const BASE_URL = 'https://s1herrou94.execute-api.us-east-1.amazonaws.com/Prod';
+export const BASE_URL = 'https://s1herrou94.execute-api.us-east-1.amazonaws.com/Prod';
 
 export const ENDPOINT_LOGIN = `${BASE_URL}/login`;
 export const ENDPOINT_APPLE_LOGIN = `${BASE_URL}/apple-login`;
@@ -24,3 +24,13 @@ export const ENDPOINT_CREATE_COMPANY = `${BASE_URL}/api/company-create`;
 export const ENDPOINT_CREATE_EVENT = `${BASE_URL}/api/event-create`;
 export const ENDPOINT_CREATE_FEED = `${BASE_URL}/api/create-feed`;
 export const ENDPOINT_GET_FEEDS = `${BASE_URL}/api/feed`;
+export const ENDPOINT_CREATE_FEED_COMMENT = `${BASE_URL}/api/create-comment`;
+export const ENDPOINT_CREATE_FEED_SUB_COMMENT = `${BASE_URL}/api/create-sub-comment`;
+export const ENDPOINT_LIKE_FEED = `${BASE_URL}/api/like-feed`;
+export const ENDPOINT_LIKE_FEED_COMMENT = `${BASE_URL}/api/like-comment`;
+export const ENDPOINT_LIKE_FEED_SUB_COMMENT = `${BASE_URL}/api/like-sub-comment`;
+export const ENDPOINT_LIKE_COMPANY = `${BASE_URL}/api/like-company`;
+export const ENDPOINT_CREATE_COMPANY_COMMENT = `${BASE_URL}/api/company-comment`;
+export const ENDPOINT_CREATE_COMPANY_SUB_COMMENT = `${BASE_URL}/api/company-sub-comment`;
+export const ENDPOINT_JOIN_EVENT = `${BASE_URL}/api/event-join`;
+export const ENDPOINT_WITHDRAW_EVENT = `${BASE_URL}/api/event-withdraw`;

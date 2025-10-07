@@ -1,12 +1,33 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../Icon.tsx';
+import { REQUEST_LIKE_FEED } from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
+import { toggleLike } from '../../store/reducers/feed.ts';
 
 type Props = {
+  feedId: string;
   likeCount: number;
   commentCount: number;
+  isLiked: boolean;
 };
 
-const FeedActionButtons = ({ likeCount, commentCount }: Props) => {
+const FeedActionButtons = ({
+  feedId,
+  likeCount,
+  commentCount,
+  isLiked,
+}: Props) => {
+  const dispatch = useDispatch();
+
+  const handleLike = () => {
+    dispatch(toggleLike({ feedId }));
+    REQUEST_LIKE_FEED({
+      feedId,
+    }).then(({ data }) => {
+      console.log(data, '<-- feed like response');
+    });
+  };
+
   return (
     <View
       style={{
@@ -20,13 +41,18 @@ const FeedActionButtons = ({ likeCount, commentCount }: Props) => {
     >
       <TouchableOpacity
         activeOpacity={0.8}
+        onPress={handleLike}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: 8,
         }}
       >
-        <Icon name="heartOutline" size="s" />
+        <Icon
+          name={isLiked ? 'heartFilled' : 'heartOutline'}
+          size="s"
+          fill={isLiked ? '#ff0000' : '#000'}
+        />
         <Text
           style={{
             fontSize: 12,
@@ -35,6 +61,7 @@ const FeedActionButtons = ({ likeCount, commentCount }: Props) => {
           {likeCount}
         </Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         activeOpacity={0.8}
         style={{

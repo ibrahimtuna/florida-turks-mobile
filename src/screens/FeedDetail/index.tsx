@@ -2,7 +2,6 @@ import { ScrollView, Text, View } from 'react-native';
 import SubHeader from '../../components/SubHeader.tsx';
 import { useTranslation } from 'react-i18next';
 import HomeFeed from '../../components/Home/HomeFeed.tsx';
-import { mockComments } from '../Home/constants.ts';
 import { RouteProp, useRoute } from '@react-navigation/core';
 import { HomeStackParamList } from '../../Navigation.tsx';
 import FeedComment from '../../components/Home/FeedComment.tsx';
@@ -17,6 +16,8 @@ const FeedDetailScreen = () => {
   const { feedId } = route.params;
   const { feed } = useAppSelector(state => state.feed);
   const foundFeed = feed.find(item => item._id === feedId);
+
+  console.log('found feed', foundFeed);
 
   if (!foundFeed) {
     return null;
@@ -43,13 +44,23 @@ const FeedDetailScreen = () => {
             color: '#000',
           }}
         >
-          {t('home.feed_detail.comments')} (5)
+          {t('home.feed_detail.comments')} ({foundFeed.comments.length})
         </Text>
-        {mockComments.map(item => (
-          <FeedComment key={item._id} item={item} />
-        ))}
+        {[...foundFeed.comments]
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
+          .map(item => (
+            <FeedComment
+              key={item._id}
+              item={item}
+              type="feed"
+              hocId={feedId}
+            />
+          ))}
       </ScrollView>
-      <FeedDetailFooter />
+      <FeedDetailFooter type="feed" hocId={feedId} />
     </View>
   );
 };

@@ -3,14 +3,20 @@ import { EnhancedStore } from '@reduxjs/toolkit';
 import { logout } from './store/reducers/user';
 import { persistor } from './store';
 import Toast from 'react-native-toast-message';
+import { BASE_URL } from './api/endpoints.ts';
 
 function setupAxios(store: EnhancedStore) {
   // REQUEST
   axios.interceptors.request.use(config => {
     const { accessToken } = store.getState().user;
 
-    if (accessToken) {
+    if (config.url?.includes(BASE_URL) && accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    } else if (config.url?.includes('places.googleapis.com')) {
+      config.headers['X-Goog-FieldMask'] =
+        'places.id,places.location,places.displayName,places.formattedAddress,places.types';
+      config.headers['X-Goog-Api-Key'] =
+        'AIzaSyCbf-a4LmPkHW_hpk8yi0Uzj05dTbsTnzA';
     }
 
     return config;

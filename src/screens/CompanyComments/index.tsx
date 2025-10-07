@@ -8,8 +8,6 @@ import Company from '../../components/Companies/Company.tsx';
 import FeedComment from '../../components/Home/FeedComment.tsx';
 import FeedDetailFooter from '../../components/Home/FeedDetailFooter.tsx';
 import { useAppSelector } from '../../store';
-import { useMemo } from 'react';
-import i18n from '../../i18n.ts';
 
 type CompanyDetailRouteProp = RouteProp<
   CompanyStackParamList,
@@ -54,10 +52,10 @@ const CompanyCommentsScreen = () => {
           {t('home.feed_detail.comments')} ({company.comments.length})
         </Text>
         {company.comments.map(comment => (
-          <FeedComment item={comment} />
+          <FeedComment item={comment} type="company" hocId={company._id} />
         ))}
       </ScrollView>
-      <FeedDetailFooter />
+      <FeedDetailFooter type="company" hocId={company._id} />
     </View>
   );
 };

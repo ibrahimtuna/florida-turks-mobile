@@ -8,12 +8,16 @@ import { cdnImage } from '../../helpers.ts';
 import { useAppSelector } from '../../store';
 import i18n from '../../i18n.ts';
 import { useMemo } from 'react';
+import { REQUEST_LIKE_COMPANY } from '../../api/requests.ts';
+import { useDispatch } from 'react-redux';
+import { toggleCompanyLike } from '../../store/reducers/company.ts';
 
 type Props = {
   item: COMPANY;
 };
 
 const Company = ({ item }: Props) => {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
   const { language } = i18n;
   const { categories } = useAppSelector(state => state.company);
@@ -26,6 +30,17 @@ const Company = ({ item }: Props) => {
     }
     return foundCategory[language === 'tr' ? 'turkishTitle' : 'englishTitle'];
   }, [language, categories, item.categoryId]);
+
+  const handleLike = () => {
+    dispatch(
+      toggleCompanyLike({
+        companyId: item._id,
+      }),
+    );
+    REQUEST_LIKE_COMPANY({
+      companyId: item._id,
+    });
+  };
 
   return (
     <TouchableOpacity
@@ -125,7 +140,7 @@ const Company = ({ item }: Props) => {
                 color: '#808792',
               }}
             >
-              {item.location}
+              {item.location.displayName}
             </Text>
           </View>
         </View>
@@ -244,13 +259,18 @@ const Company = ({ item }: Props) => {
         >
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={handleLike}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <Icon name="heartOutline" size="s" />
+            <Icon
+              name={item.isLiked ? 'heartFilled' : 'heartOutline'}
+              size="s"
+              fill={item.isLiked ? '#ff0000' : '#000'}
+            />
             <Text style={{ color: '#000' }}>{item.likeCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity
