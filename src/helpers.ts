@@ -1,7 +1,8 @@
-import { NavigationState, PartialState, Route } from '@react-navigation/native';
+import { NavigationContainerRef, NavigationState, PartialState, Route } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
 import { CDN_URL } from './api/endpoints.ts';
 import moment from 'moment';
+import React from 'react';
 
 export function getLeafRouteName(
   route: Route<string> & {
@@ -32,3 +33,5 @@ export const formatCommentDate = (date: string | Date) => {
     return commentTime.format('MMM D, h:mm A');
   }
 };
+
+export const navigationRef = React.createRef<NavigationContainerRef<any>>();

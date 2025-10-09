@@ -1,20 +1,28 @@
-import { CHAT_ITEM } from './constants.ts';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { INBOX } from '../../store/types.ts';
+import { cdnImage } from '../../helpers.ts';
 
 type Props = {
-  item: CHAT_ITEM;
+  item: INBOX;
 };
 
 const ChatItem = ({ item }: Props) => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const lastMessage = [...item.messages].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )?.[0];
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => {
         navigation.navigate('ChatDetail', {
-          chatId: item.id,
+          _id: item.user._id,
+          name: item.user.name,
+          surname: item.user.surname,
+          photoKey: item.user.photoKey,
         });
       }}
       style={{
@@ -29,7 +37,7 @@ const ChatItem = ({ item }: Props) => {
       }}
     >
       <Image
-        source={{ uri: item.profilePhotoUrl }}
+        source={{ uri: cdnImage(item.user.photoKey) }}
         style={{ height: 42, width: 42, borderRadius: 21 }}
       />
       <View
@@ -47,7 +55,7 @@ const ChatItem = ({ item }: Props) => {
               color: '#000',
             }}
           >
-            {item.name}
+            {`${item.user.name} ${item.user.surname}`}
           </Text>
           <Text
             style={{
@@ -56,7 +64,7 @@ const ChatItem = ({ item }: Props) => {
               marginTop: 12,
             }}
           >
-            {item.lastMessage}
+            {lastMessage?.content}
           </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
@@ -66,7 +74,7 @@ const ChatItem = ({ item }: Props) => {
               color: '#808792',
             }}
           >
-            {new Date(item.lastMessageDate).toLocaleDateString()}
+            {new Date(lastMessage?.createdAt).toLocaleDateString()}
           </Text>
           <View
             style={{

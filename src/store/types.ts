@@ -11,7 +11,7 @@ type LOCATION = {
   };
   displayName: string;
   formattedAddress: string;
-}
+};
 
 export type COMPANY = {
   _id: string;
@@ -91,16 +91,67 @@ export type COMMENT = {
   subComments: SUB_COMMENT[];
 };
 
-export type FEED = {
+type BaseFeed = {
   _id: string;
   context: string;
   comments: COMMENT[];
   createdAt: string;
   createdBy: { _id: string; name: string; photoKey: string; surname: string };
   feedCategoryId: string;
-  kind: 'feed' | 'ad';
   likeCount: number;
   isLiked: boolean;
+  location: LOCATION;
   updatedAt: string;
   photoKey?: string;
+};
+
+export type FEED =
+  | (BaseFeed & { kind: 'feed' })
+  | (BaseFeed & { kind: 'ad'; ctaButtonText: string });
+
+export type USER = {
+  _id: string;
+  email: string;
+  name: string;
+  surname: string;
+  bio: string;
+  phoneNumber: string;
+  location: LOCATION;
+  photoKey: string;
+  rewards: number;
+  shareContact: boolean;
+  status: 0 | 1 | 2;
+  createdAt: string;
+};
+
+export type GET_PROFILE = {
+  __id: string;
+  name: string;
+  surname: string;
+  createdAt: string;
+  location: LOCATION;
+  bio?: string;
+  email?: string;
+  phoneNumber?: string;
+};
+
+export type MESSAGE = {
+  _id: string;
+  content: string;
+  createdAt: string;
+  receiverId: string;
+  senderId: string;
+  status: 'sent' | 'read';
+};
+
+export type INBOX = {
+  userId: string;
+  user: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
+  unreadCount: number;
+  messages: MESSAGE[];
 };

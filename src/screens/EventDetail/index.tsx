@@ -381,14 +381,16 @@ const EventDetailScreen = () => {
               >
                 {event.createdBy.name}
               </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: '#808792',
-                }}
-              >
-                {event.organizer}
-              </Text>
+              {event.organizer && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#808792',
+                  }}
+                >
+                  {event.organizer}
+                </Text>
+              )}
             </View>
           </View>
           <TouchableOpacity

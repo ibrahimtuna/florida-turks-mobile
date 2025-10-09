@@ -1,13 +1,17 @@
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
+  Keyboard,
 } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SearchInput from '../../SearchInput.tsx';
 import axios from 'axios';
@@ -36,8 +40,7 @@ const LocationModal = ({
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    if (!debouncedSearch.trim()) return; // avoid empty search
-
+    if (!debouncedSearch.trim()) return;
     const fetchPlaces = async () => {
       try {
         setIsSearching(true);
@@ -45,25 +48,19 @@ const LocationModal = ({
           'https://places.googleapis.com/v1/places:searchText',
           { textQuery: debouncedSearch },
         );
-        console.log(data, '<-- place response');
-        let newLocations: LOCATION[] = [];
-        if (isCities) {
-          newLocations = data.places.filter(
-            (p: any) =>
-              p.types.includes('locality') || p.types.includes('political'),
-          );
-        } else {
-          newLocations = data.places;
-        }
+        const newLocations: LOCATION[] = isCities
+          ? data.places.filter(
+              (p: any) =>
+                p.types.includes('locality') || p.types.includes('political'),
+            )
+          : data.places;
         setLocations(newLocations);
-        console.log('places res:', data);
       } catch (err) {
         console.error(err);
       } finally {
         setIsSearching(false);
       }
     };
-
     fetchPlaces();
   }, [isCities, debouncedSearch]);
 
@@ -84,85 +81,90 @@ const LocationModal = ({
           justifyContent: 'flex-end',
         }}
       >
-        {/* Stop backdrop presses from bubbling when touching the sheet */}
-        <Pressable
-          onPress={() => {}}
-          style={{
-            width: '100%',
-            height: '100%',
-            justifyContent: 'flex-end',
-          }}
-        >
-          {/* Bottom sheet */}
-          <View
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{
-              height: '50%',
               width: '100%',
-              backgroundColor: '#fff',
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
+              justifyContent: 'flex-end',
+              flex: 1,
             }}
           >
-            {/* Header */}
+            {/* Bottom sheet */}
             <View
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                marginBottom: 8,
-                padding: 16,
+                height: '50%',
+                width: '100%',
+                backgroundColor: '#fff',
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
               }}
             >
-              <TouchableOpacity
-                onPress={handleClose}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Text style={{ fontSize: 16 }}>{t('commons.close')}</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={{ paddingHorizontal: 16, gap: 8 }}>
-              <SearchInput
-                value={searchText}
-                onChange={setSearchText}
-                placeholder={t('commons.search_location')}
-                autoFocus
-              />
-              <ScrollView
-                contentContainerStyle={{
-                  gap: 8,
-                  minHeight: 300,
+              {/* Header */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  marginBottom: 8,
+                  padding: 16,
                 }}
               >
-                {isSearching ? (
-                  <ActivityIndicator />
-                ) : (
-                  locations.map((location, i) => (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      key={i}
-                      onPress={() => {
-                        onChange(location);
-                        handleClose();
-                      }}
-                      style={{
-                        paddingVertical: 16,
-                        paddingHorizontal: 8,
-                        backgroundColor:
-                          location.id === value?.id ? '#ddd' : '#f4f4f4',
-                        borderRadius: 12,
-                      }}
-                    >
-                      <Text>{location.displayName.text}</Text>
-                      <Text style={{ color: '#6a6a6a', marginTop: 4 }}>
-                        {location.formattedAddress}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                )}
-              </ScrollView>
+                <TouchableOpacity
+                  onPress={handleClose}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={{ fontSize: 16 }}>{t('commons.close')}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Content */}
+              <View style={{ paddingHorizontal: 16, gap: 8, flex: 1 }}>
+                <SearchInput
+                  value={searchText}
+                  onChange={setSearchText}
+                  placeholder={t('commons.search_location')}
+                  autoFocus
+                />
+
+                <ScrollView
+                  keyboardShouldPersistTaps="handled"
+                  contentContainerStyle={{
+                    gap: 8,
+                    paddingBottom: 40,
+                  }}
+                >
+                  {isSearching ? (
+                    <ActivityIndicator />
+                  ) : (
+                    locations.map((location, i) => (
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        key={i}
+                        onPress={() => {
+                          onChange(location);
+                          handleClose();
+                        }}
+                        style={{
+                          paddingVertical: 16,
+                          paddingHorizontal: 8,
+                          backgroundColor:
+                            location.id === value?.id ? '#ddd' : '#f4f4f4',
+                          borderRadius: 12,
+                        }}
+                      >
+                        <Text>{location.displayName.text}</Text>
+                        <Text style={{ color: '#6a6a6a', marginTop: 4 }}>
+                          {location.formattedAddress}
+                        </Text>
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </ScrollView>
+              </View>
             </View>
-          </View>
-        </Pressable>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </Pressable>
     </Modal>
   );

@@ -2,11 +2,16 @@ import { ScrollView, Text, View } from 'react-native';
 import Header from '../../components/Header.tsx';
 import { useTranslation } from 'react-i18next';
 import SearchInput from '../../components/SearchInput.tsx';
-import { MOCK_CHAT_ITEMS } from './constants.ts';
 import ChatItem from './ChatItem.tsx';
+import { useState } from 'react';
+import { useDebounce } from '../../hooks/useDebounce.ts';
+import { useAppSelector } from '../../store';
 
 const ChatScreen = () => {
   const { t } = useTranslation();
+  const { inbox } = useAppSelector(state => state.inbox);
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearch = useDebounce(searchText, 2000);
 
   return (
     <View
@@ -21,7 +26,11 @@ const ChatScreen = () => {
           padding: 16,
         }}
       >
-        <SearchInput placeholder={t('chat.search_placeholder')} />
+        <SearchInput
+          value={searchText}
+          onChange={setSearchText}
+          placeholder={t('chat.search_placeholder')}
+        />
       </View>
       <ScrollView
         contentContainerStyle={{
@@ -30,8 +39,8 @@ const ChatScreen = () => {
           paddingBottom: 32,
         }}
       >
-        {MOCK_CHAT_ITEMS.map((item, index) => (
-          <ChatItem key={index} item={item} />
+        {inbox.map(item => (
+          <ChatItem key={item.userId} item={item} />
         ))}
       </ScrollView>
     </View>

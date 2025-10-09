@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from './Icon.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/core';
+import { cdnImage } from '../helpers.ts';
 
 type Props = {
   name: string;
@@ -53,7 +54,9 @@ const ChatHeader = ({
         }}
       >
         <Image
-          source={{ uri: profilePhotoUrl }}
+          source={{
+            uri: profilePhotoUrl ? cdnImage(profilePhotoUrl) : undefined,
+          }}
           style={{ height: 32, width: 32, borderRadius: 16 }}
         />
         <Text style={{ fontSize: 14, color: '#000' }}>{name}</Text>

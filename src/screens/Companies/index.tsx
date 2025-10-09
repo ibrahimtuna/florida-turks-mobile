@@ -19,6 +19,8 @@ import { REQUEST_GET_COMPANIES } from '../../api/requests.ts';
 import { useDispatch } from 'react-redux';
 import { setCompanies } from '../../store/reducers/company.ts';
 import { useDebounce } from '../../hooks/useDebounce.ts';
+import LocationFilter from '../../components/LocationFilter.tsx';
+import { FILTER_LOCATION } from '../../components/Inputs/LocationInput/types.ts';
 
 const CompaniesScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -28,6 +30,7 @@ const CompaniesScreen = () => {
   const { categories, companies } = useAppSelector(state => state.company);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [filterLocation, setFilterLocation] = useState<FILTER_LOCATION>();
   const [searchText, setSearchText] = useState('');
   const debouncedSearch = useDebounce(searchText, 2000);
 
@@ -54,13 +57,20 @@ const CompaniesScreen = () => {
     REQUEST_GET_COMPANIES({
       page: 0,
       categoryId: selectedCategory !== 'all' ? selectedCategory : undefined,
+      location: filterLocation
+        ? {
+            lat: filterLocation.location.latitude,
+            lon: filterLocation.location.longitude,
+            distance: filterLocation.distance,
+          }
+        : undefined,
     })
       .then(({ data }) => {
         console.log(data, '<-- data');
         dispatch(setCompanies(data.items));
       })
       .finally(() => setIsLoading(false));
-  }, [dispatch, selectedCategory]);
+  }, [dispatch, selectedCategory, filterLocation]);
 
   useEffect(() => {
     fetchCompanies();
@@ -102,14 +112,21 @@ const CompaniesScreen = () => {
             selected={selectedCategory}
             setSelected={setSelectedCategory}
           />
-          <TouchableOpacity activeOpacity={0.8}>
-            <Icon name="map" size="m" fill="#808792" />
-          </TouchableOpacity>
+          <LocationFilter
+            defaultFilter={filterLocation}
+            setDefaultFilter={setFilterLocation}
+          />
         </View>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          companies.map(company => <Company key={company._id} item={company} />)
+          [...companies]
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )
+            .map(company => <Company key={company._id} item={company} />)
         )}
       </ScrollView>
     </View>

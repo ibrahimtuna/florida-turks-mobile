@@ -20,13 +20,17 @@ import BannerPhotoUpload from '../../components/BannerPhotoUpload.tsx';
 import { REQUEST_CREATE_EVENT } from '../../api/requests.ts';
 import LocationInput from '../../components/Inputs/LocationInput';
 import { LOCATION } from '../../components/Inputs/LocationInput/types.ts';
+import { useDispatch } from 'react-redux';
+import { addEvent } from '../../store/reducers/event.ts';
 
 const CreateEventScreen = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { language } = i18n;
   const { categories } = useAppSelector(state => state.event);
-  const navigation = useNavigation();
+  const { user } = useAppSelector(state => state.user);
 
   const [banner, setBanner] = useState('');
   const [eventCategory, setEventCategory] = useState('');
@@ -111,6 +115,32 @@ const CreateEventScreen = () => {
     })
       .then(({ data }) => {
         console.log('data response ', data);
+        dispatch(
+          addEvent({
+            _id: data.event._id,
+            title: data.event.title,
+            desc: data.event.desc,
+            date: data.event.date,
+            fee: data.event.fee,
+            participants: [],
+            showProfile: data.event.showProfile,
+            location: data.event.location,
+            organizer: data.event.organizer,
+            maxParticipants: data.event.maxParticipants,
+            createdAt: data.event.createdAt,
+            updatedAt: data.event.createdAt,
+            photoKey: data.event.photoKey,
+            categoryId: data.event.categoryId,
+            updatedBy: user._id,
+            createdBy: {
+              _id: user._id,
+              name: user.name,
+              surname: user.surname,
+              photoKey: user.photoKey,
+            },
+          }),
+        );
+        navigation.goBack();
       })
       .finally(() => setSaveLoading(false));
   };

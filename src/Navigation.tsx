@@ -11,7 +11,7 @@ import CompaniesScreen from './screens/Companies';
 import ChatScreen from './screens/Chat';
 import ProfileScreen from './screens/Profile';
 import FeedDetailScreen from './screens/FeedDetail';
-import { getLeafRouteName } from './helpers.ts';
+import { getLeafRouteName, navigationRef } from './helpers.ts';
 import EventDetailScreen from './screens/EventDetail';
 import CompanyDetailScreen from './screens/CompanyDetail';
 import CompanyCommentsScreen from './screens/CompanyComments';
@@ -30,6 +30,7 @@ import {
   REQUEST_GET_EVENT_CATEGORIES,
   REQUEST_GET_FEED_CATEGORIES,
   REQUEST_GET_ME,
+  REQUEST_GET_MESSAGES,
 } from './api/requests.ts';
 import { setUser } from './store/reducers/user.ts';
 import { useDispatch } from 'react-redux';
@@ -39,6 +40,8 @@ import { setCompanyCategories } from './store/reducers/company.ts';
 import CreateCompanyScreen from './screens/CreateCompany';
 import CreateEventScreen from './screens/CreateEvent';
 import CreateFeed from './screens/CreateFeed';
+import ProfileDetailScreen from './screens/ProfileDetail';
+import { setInbox } from './store/reducers/inbox.ts';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -47,6 +50,12 @@ export type HomeStackParamList = {
   Home: undefined;
   FeedDetail: { feedId: string };
   CreateFeed: undefined;
+  ProfileDetail: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -57,6 +66,7 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="Home" component={HomeScreen} />
       <HomeStack.Screen name="FeedDetail" component={FeedDetailScreen} />
       <HomeStack.Screen name="CreateFeed" component={CreateFeed} />
+      <HomeStack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
     </HomeStack.Navigator>
   );
 }
@@ -65,6 +75,12 @@ export type EventStackParamList = {
   Events: undefined;
   EventDetail: { eventId: string };
   CreateEvent: undefined;
+  ProfileDetail: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
 };
 
 const EventStack = createNativeStackNavigator<EventStackParamList>();
@@ -75,6 +91,7 @@ function EventStackNavigator() {
       <EventStack.Screen name="Events" component={EventsScreen} />
       <EventStack.Screen name="EventDetail" component={EventDetailScreen} />
       <EventStack.Screen name="CreateEvent" component={CreateEventScreen} />
+      <EventStack.Screen name="ProfileDetail" component={ProfileDetailScreen} />
     </EventStack.Navigator>
   );
 }
@@ -84,6 +101,12 @@ export type CompanyStackParamList = {
   CompanyDetail: { companyId: string };
   CompanyComments: { companyId: string };
   CreateCompany: undefined;
+  ProfileDetail: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
 };
 
 const CompanyStack = createNativeStackNavigator<CompanyStackParamList>();
@@ -104,13 +127,28 @@ function CompanyStackNavigator() {
         name="CreateCompany"
         component={CreateCompanyScreen}
       />
+      <CompanyStack.Screen
+        name="ProfileDetail"
+        component={ProfileDetailScreen}
+      />
     </CompanyStack.Navigator>
   );
 }
 
 export type ChatStackParamList = {
   Chat: undefined;
-  ChatDetail: { chatId: string };
+  ChatDetail: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
+  ProfileDetail: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
 };
 
 const ChatStack = createNativeStackNavigator<ChatStackParamList>();
@@ -120,6 +158,10 @@ function ChatStackNavigator() {
     <ChatStack.Navigator screenOptions={{ headerShown: false }}>
       <ChatStack.Screen name="Chat" component={ChatScreen} />
       <ChatStack.Screen name="ChatDetail" component={ChatDetailScreen} />
+      <CompanyStack.Screen
+        name="ProfileDetail"
+        component={ProfileDetailScreen}
+      />
     </ChatStack.Navigator>
   );
 }
@@ -127,6 +169,12 @@ function ChatStackNavigator() {
 export type ProfileStackParamList = {
   Profile: undefined;
   ProfileSettings: undefined;
+  ProfileDetail: {
+    _id: string;
+    name: string;
+    surname: string;
+    photoKey: string;
+  };
 };
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
@@ -139,6 +187,10 @@ function ProfileStackNavigator() {
         name="ProfileSettings"
         component={ProfileSettingsScreen}
       />
+      <ProfileStack.Screen
+        name="ProfileDetail"
+        component={ProfileDetailScreen}
+      />
     </ProfileStack.Navigator>
   );
 }
@@ -149,6 +201,7 @@ const HIDE_TABBAR_ROUTES = [
   'CompanyDetail',
   'CompanyComments',
   'ProfileSettings',
+  'ProfileDetail',
   'ChatDetail',
   'CreateCompany',
   'CreateEvent',
@@ -165,19 +218,23 @@ function TabNavigation() {
       REQUEST_GET_FEED_CATEGORIES(),
       REQUEST_GET_EVENT_CATEGORIES(),
       REQUEST_GET_COMPANY_CATEGORIES(),
+      REQUEST_GET_MESSAGES(),
     ];
 
     Promise.all(promises)
       .then(responses => {
         const userData = responses[0].data.user;
+        console.log(userData, '<-- user data');
         const feedCategories = responses[1].data.items;
         const eventCategories = responses[2].data.items;
         const companyCategories = responses[3].data.items;
+        const conversations = responses[4].data.conversations;
 
         dispatch(setUser(userData));
         dispatch(setFeedCategories(feedCategories));
         dispatch(setEventCategories(eventCategories));
         dispatch(setCompanyCategories(companyCategories));
+        dispatch(setInbox(conversations));
       })
       .catch(err => console.log(err));
   }, [dispatch]);
@@ -189,6 +246,7 @@ function TabNavigation() {
       tabBar={props => {
         const currentTabRoute = props.state.routes[props.state.index] as any;
         const focusedName = getLeafRouteName(currentTabRoute);
+        console.log(focusedName, '<-- focused name');
 
         if (HIDE_TABBAR_ROUTES.includes(focusedName)) return null;
         return <CustomTabBar {...props} />;
@@ -227,7 +285,7 @@ function Navigation() {
   const { user } = useAppSelector(state => state.user);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user?.photoKey ? (
           <Stack.Screen name="Main" component={TabNavigation} />

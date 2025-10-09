@@ -21,6 +21,9 @@ export const companySlice = createSlice({
     setCompanies: (state, action: PayloadAction<COMPANY[]>) => {
       state.companies = action.payload;
     },
+    addCompany: (state, action: PayloadAction<COMPANY>) => {
+      state.companies.push(action.payload);
+    },
     addCompanyComment: (
       state,
       action: PayloadAction<{ companyId: string; comment: COMMENT }>,
@@ -110,6 +113,7 @@ export const companySlice = createSlice({
 export const {
   setCompanyCategories,
   setCompanies,
+  addCompany,
   addCompanyComment,
   addCompanySubComment,
   toggleCompanyLike,

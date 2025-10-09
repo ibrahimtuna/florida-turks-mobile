@@ -85,7 +85,7 @@ const HomeFeed = ({ item }: Props) => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: item.location ? 'space-between' : 'flex-end',
+            justifyContent: item?.location ? 'space-between' : 'flex-end',
           }}
         >
           {item.location && (
@@ -103,7 +103,7 @@ const HomeFeed = ({ item }: Props) => {
                   color: '#808792',
                 }}
               >
-                {item.location}
+                {item.location.displayName}
               </Text>
             </View>
           )}
@@ -157,12 +157,21 @@ const HomeFeed = ({ item }: Props) => {
           justifyContent: 'space-between',
         }}
       >
-        <View
+        <TouchableOpacity
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             gap: 10,
           }}
+          activeOpacity={0.8}
+          onPress={() =>
+            navigation.navigate('ProfileDetail', {
+              _id: item.createdBy._id,
+              name: item.createdBy.name,
+              surname: item.createdBy.surname,
+              photoKey: item.createdBy.photoKey,
+            })
+          }
         >
           <Image
             source={{ uri: cdnImage(item.createdBy.photoKey) }}
@@ -193,12 +202,12 @@ const HomeFeed = ({ item }: Props) => {
                     color: '#808792',
                   }}
                 >
-                  {item.location}
+                  {item.location.displayName}
                 </Text>
               </View>
             )}
           </View>
-        </View>
+        </TouchableOpacity>
         <View
           style={{
             alignItems: 'flex-end',

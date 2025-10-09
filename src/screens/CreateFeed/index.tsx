@@ -19,23 +19,57 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon.tsx';
 import ImagePicker from 'react-native-image-crop-picker';
 import { REQUEST_CREATE_FEED } from '../../api/requests.ts';
+import LocationModal from '../../components/Inputs/LocationInput/LocationModal.tsx';
+import { LOCATION } from '../../components/Inputs/LocationInput/types.ts';
+import { useDispatch } from 'react-redux';
+import { addFeed } from '../../store/reducers/feed.ts';
 
 const CreateEventScreen = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { top } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { language } = i18n;
   const { categories } = useAppSelector(state => state.feed);
-  const navigation = useNavigation();
+  const { user } = useAppSelector(state => state.user);
   const inputRef = useRef<TextInput>(null);
 
   const [post, setPost] = useState('');
   const [photo, setPhoto] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [location, setLocation] = useState<LOCATION>({
+    id: user.location.addressId,
+    location: {
+      latitude: user.location.coords.coordinates[1],
+      longitude: user.location.coords.coordinates[0],
+    },
+    displayName: {
+      languageCode: 'en',
+      text: user.location.displayName,
+    },
+    formattedAddress: user.location.formattedAddress,
+  });
 
   const [postError, setPostError] = useState(false);
   const [categoryError, setCategoryError] = useState(false);
 
   const [isPostLoading, setIsPostLoading] = useState(false);
+  const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
+
+  useEffect(() => {
+    setLocation({
+      id: user.location.addressId,
+      location: {
+        latitude: user.location.coords.coordinates[1],
+        longitude: user.location.coords.coordinates[0],
+      },
+      displayName: {
+        languageCode: 'en',
+        text: user.location.displayName,
+      },
+      formattedAddress: user.location.formattedAddress,
+    });
+  }, [user.location]);
 
   const CATEGORIES = useMemo(() => {
     return categories.map(category => ({
@@ -79,7 +113,33 @@ const CreateEventScreen = () => {
       categoryId,
       context: post,
       photo,
-    }).finally(() => setIsPostLoading(false));
+      location,
+    })
+      .then(({ data }) => {
+        dispatch(
+          addFeed({
+            _id: data.feed._id,
+            location: data.feed.location,
+            photoKey: data.feed?.photoKey,
+            context: data.feed.context,
+            likeCount: 0,
+            comments: [],
+            createdAt: data.feed.createdAt,
+            feedCategoryId: data.feed.feedCategoryId,
+            isLiked: false,
+            kind: 'feed',
+            createdBy: {
+              _id: user._id,
+              name: user.name,
+              surname: user.surname,
+              photoKey: user.photoKey,
+            },
+            updatedAt: data.feed.createdAt,
+          }),
+        );
+        navigation.goBack();
+      })
+      .finally(() => setIsPostLoading(false));
   };
 
   return (
@@ -223,9 +283,18 @@ const CreateEventScreen = () => {
           <Icon name="gallery" fill="#0071a2" size="s" />
         </TouchableOpacity>
 
+        <LocationModal
+          visible={isLocationModalVisible}
+          handleClose={() => setIsLocationModalVisible(false)}
+          value={location}
+          onChange={setLocation}
+          isCities
+        />
+
         <TouchableOpacity
           activeOpacity={0.8}
           disabled={isPostLoading}
+          onPress={() => setIsLocationModalVisible(true)}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -233,7 +302,9 @@ const CreateEventScreen = () => {
           }}
         >
           <Icon name="locationPoint" fill="#0071a2" size="s" />
-          <Text style={{ color: '#1e1e1e', marginLeft: 6 }}>New York, NY</Text>
+          <Text style={{ color: '#1e1e1e', marginLeft: 6 }}>
+            {location.displayName.text}
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

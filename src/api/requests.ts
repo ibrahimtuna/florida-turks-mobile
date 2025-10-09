@@ -19,6 +19,9 @@ import {
   ENDPOINT_GET_EVENTS,
   ENDPOINT_GET_FEEDS,
   ENDPOINT_GET_ME,
+  ENDPOINT_GET_MESSAGES,
+  ENDPOINT_GET_PROFILE,
+  ENDPOINT_GET_PROFILE_POSTS,
   ENDPOINT_GOOGLE_LOGIN,
   ENDPOINT_JOIN_EVENT,
   ENDPOINT_LIKE_COMPANY,
@@ -28,6 +31,7 @@ import {
   ENDPOINT_LOGIN,
   ENDPOINT_ONBOARDING_COMPLETE,
   ENDPOINT_REGISTER,
+  ENDPOINT_SEND_MESSAGE,
   ENDPOINT_SEND_OTP,
   ENDPOINT_UPDATE_ME,
   ENDPOINT_VERIFY_OTP,
@@ -280,28 +284,38 @@ export const REQUEST_CREATE_COMPANY = ({
 export const REQUEST_GET_COMPANIES = ({
   page,
   categoryId,
+  location,
 }: {
   page?: number;
   categoryId?: string;
+  location?: { lat: number; lon: number; distance: number };
 }) =>
   axios.get(ENDPOINT_GET_COMPANIES, {
     params: {
       page,
       categoryId,
+      lat: location?.lat,
+      lon: location?.lon,
+      distance: location?.distance,
     },
   });
 
 export const REQUEST_GET_EVENTS = ({
   page,
   categoryId,
+  location,
 }: {
   page?: number;
   categoryId?: string;
+  location?: { lat: number; lon: number; distance: number };
 }) =>
   axios.get(ENDPOINT_GET_EVENTS, {
     params: {
       page,
       categoryId,
+      lat: location?.lat,
+      lon: location?.lon,
+      distance: location?.distance,
     },
   });
 
@@ -360,15 +374,18 @@ export const REQUEST_CREATE_EVENT = ({
 export const REQUEST_CREATE_FEED = ({
   categoryId,
   context,
+  location,
   photo,
 }: {
   categoryId: string;
   context: string;
+  location: LOCATION;
   photo?: string;
 }) => {
   const formData = new FormData();
   formData.append('feedCategoryId', categoryId);
   formData.append('context', context);
+  formData.append('location', JSON.stringify(location));
 
   if (photo) {
     const cleanedUri = photo.startsWith('file://')
@@ -393,14 +410,19 @@ export const REQUEST_CREATE_FEED = ({
 export const REQUEST_GET_FEEDS = ({
   page,
   categoryId,
+  location,
 }: {
   page?: number;
   categoryId?: string;
+  location?: { lat: number; lon: number; distance: number };
 }) =>
   axios.get(ENDPOINT_GET_FEEDS, {
     params: {
       page,
       categoryId,
+      lat: location?.lat,
+      lon: location?.lon,
+      distance: location?.distance,
     },
   });
 
@@ -508,3 +530,44 @@ export const REQUEST_WITHDRAW_EVENT = ({ eventId }: { eventId: string }) =>
   axios.post(ENDPOINT_WITHDRAW_EVENT, {
     eventId,
   });
+
+export const REQUEST_GET_MESSAGES = () => axios.get(ENDPOINT_GET_MESSAGES);
+
+export const REQUEST_GET_PROFILE = ({ userId }: { userId: string }) =>
+  axios.get(ENDPOINT_GET_PROFILE, {
+    params: {
+      userId,
+    },
+  });
+
+export const REQUEST_GET_PROFILE_POSTS = ({
+  userId,
+  page,
+}: {
+  userId: string;
+  page?: number;
+}) =>
+  axios.get(ENDPOINT_GET_PROFILE_POSTS, {
+    params: {
+      userId,
+      page,
+    },
+  });
+
+export const REQUEST_SEND_MESSAGE = ({
+  receiverId,
+  content,
+}: {
+  receiverId: string;
+  content: string;
+}) => {
+  const formData = new FormData();
+  formData.append('receiverId', receiverId);
+  formData.append('content', content);
+
+  return axios.post(ENDPOINT_SEND_MESSAGE, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};

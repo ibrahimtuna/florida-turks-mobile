@@ -1,14 +1,8 @@
-import {
-  ActivityIndicator,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, View } from 'react-native';
 import Header from '../../components/Header.tsx';
 import { useTranslation } from 'react-i18next';
 import SearchInput from '../../components/SearchInput.tsx';
 import HorizontalFilter from '../../components/HorizontalFilter.tsx';
-import Icon from '../../components/Icon.tsx';
 import Event from '../../components/Events/Event.tsx';
 import i18n from '../../i18n.ts';
 import { useAppSelector } from '../../store';
@@ -19,6 +13,8 @@ import { REQUEST_GET_EVENTS } from '../../api/requests.ts';
 import { useDispatch } from 'react-redux';
 import { setEvents } from '../../store/reducers/event.ts';
 import { useDebounce } from '../../hooks/useDebounce.ts';
+import LocationFilter from '../../components/LocationFilter.tsx';
+import { FILTER_LOCATION } from '../../components/Inputs/LocationInput/types.ts';
 
 const EventsScreen = () => {
   const dispatch = useDispatch();
@@ -28,6 +24,7 @@ const EventsScreen = () => {
   const { events, categories } = useAppSelector(state => state.event);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
+  const [filterLocation, setFilterLocation] = useState<FILTER_LOCATION>();
   const [searchText, setSearchText] = useState('');
   const debouncedSearch = useDebounce(searchText, 2000);
 
@@ -54,13 +51,20 @@ const EventsScreen = () => {
     REQUEST_GET_EVENTS({
       page: 0,
       categoryId: selectedCategory !== 'all' ? selectedCategory : undefined,
+      location: filterLocation
+        ? {
+            lat: filterLocation.location.latitude,
+            lon: filterLocation.location.longitude,
+            distance: filterLocation.distance,
+          }
+        : undefined,
     })
       .then(({ data }) => {
         console.log(data, '<-- data');
         dispatch(setEvents(data.items));
       })
       .finally(() => setIsLoading(false));
-  }, [dispatch, selectedCategory]);
+  }, [dispatch, selectedCategory, filterLocation]);
 
   useEffect(() => {
     fetchEvents();
@@ -102,14 +106,21 @@ const EventsScreen = () => {
             setSelected={setSelectedCategory}
             categories={CATEGORIES}
           />
-          <TouchableOpacity activeOpacity={0.8}>
-            <Icon name="map" size="m" fill="#808792" />
-          </TouchableOpacity>
+          <LocationFilter
+            defaultFilter={filterLocation}
+            setDefaultFilter={setFilterLocation}
+          />
         </View>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          events?.map(event => <Event key={event._id} item={event} />)
+          [...events]
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )
+            ?.map(event => <Event key={event._id} item={event} />)
         )}
       </ScrollView>
     </View>

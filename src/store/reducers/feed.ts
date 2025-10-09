@@ -21,6 +21,9 @@ export const feedSlice = createSlice({
     setFeed: (state, action: PayloadAction<FEED[]>) => {
       state.feed = action.payload;
     },
+    addFeed: (state, action: PayloadAction<FEED>) => {
+      state.feed.push(action.payload);
+    },
     addFeedComment: (
       state,
       action: PayloadAction<{ feedId: string; comment: COMMENT }>,
@@ -112,6 +115,7 @@ export const feedSlice = createSlice({
 export const {
   setFeedCategories,
   setFeed,
+  addFeed,
   addFeedComment,
   addFeedSubComment,
   toggleLike,

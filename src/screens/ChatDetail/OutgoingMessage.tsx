@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
-import { MESSAGE } from '../Chat/constants.ts';
+import { MESSAGE } from '../../store/types.ts';
+import moment from 'moment/moment';
 
 type Props = {
   item: MESSAGE;
@@ -26,7 +27,10 @@ const OutgoingMessage = ({ item }: Props) => {
           lineHeight: 22,
         }}
       >
-        {item.message}
+        {item.content}
+      </Text>
+      <Text style={{ marginTop: 4, fontSize: 12 }}>
+        {moment(item.createdAt).format('hh:mm A')}
       </Text>
     </View>
   );

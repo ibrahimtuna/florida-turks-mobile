@@ -97,6 +97,7 @@ const OptionModal = ({
                 {options.map(option => (
                   <TouchableOpacity
                     activeOpacity={0.8}
+                    key={option.value}
                     onPress={() => handleSelect(option)}
                     style={{
                       paddingVertical: 16,

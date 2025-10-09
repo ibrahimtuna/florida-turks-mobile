@@ -1,6 +1,7 @@
 export const CDN_URL = 'https://d2k5cbh8rxeqa0.cloudfront.net';
 
-export const BASE_URL = 'https://s1herrou94.execute-api.us-east-1.amazonaws.com/Prod';
+export const BASE_URL =
+  'https://s1herrou94.execute-api.us-east-1.amazonaws.com/Prod';
 
 export const ENDPOINT_LOGIN = `${BASE_URL}/login`;
 export const ENDPOINT_APPLE_LOGIN = `${BASE_URL}/apple-login`;
@@ -34,3 +35,7 @@ export const ENDPOINT_CREATE_COMPANY_COMMENT = `${BASE_URL}/api/company-comment`
 export const ENDPOINT_CREATE_COMPANY_SUB_COMMENT = `${BASE_URL}/api/company-sub-comment`;
 export const ENDPOINT_JOIN_EVENT = `${BASE_URL}/api/event-join`;
 export const ENDPOINT_WITHDRAW_EVENT = `${BASE_URL}/api/event-withdraw`;
+export const ENDPOINT_GET_MESSAGES = `${BASE_URL}/api/messages`;
+export const ENDPOINT_GET_PROFILE = `${BASE_URL}/api/profile`;
+export const ENDPOINT_GET_PROFILE_POSTS = `${BASE_URL}/api/profile-posts`;
+export const ENDPOINT_SEND_MESSAGE = `${BASE_URL}/api/send-message`;

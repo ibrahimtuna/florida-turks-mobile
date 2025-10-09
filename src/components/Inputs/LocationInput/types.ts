@@ -10,3 +10,5 @@ export type LOCATION = {
   };
   formattedAddress: string;
 };
+
+export type FILTER_LOCATION = LOCATION & { distance: number };

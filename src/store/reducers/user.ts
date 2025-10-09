@@ -1,23 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-type User = {
-  _id: string;
-  email: string;
-  name: string;
-  surname: string;
-  bio: string;
-  phoneNumber: string;
-  location: string;
-  photoKey: string;
-  rewards: number;
-  shareContact: boolean;
-  status: 0 | 1 | 2;
-  createdAt: string;
-};
+import { USER } from '../types.ts';
 
 type State = {
   accessToken: string;
-  user: User;
+  user: USER;
 };
 
 const initialState: State = {
@@ -29,7 +15,12 @@ const initialState: State = {
     surname: '',
     bio: '',
     phoneNumber: '',
-    location: '',
+    location: {
+      addressId: '',
+      coords: { coordinates: [0, 0] },
+      displayName: '',
+      formattedAddress: '',
+    },
     photoKey: '',
     rewards: 0,
     shareContact: false,
@@ -55,7 +46,7 @@ export const userSlice = createSlice({
         state.user.surname = action.payload.name.split(' ')[1];
       }
     },
-    setUser: (state, action: PayloadAction<User>) => {
+    setUser: (state, action: PayloadAction<USER>) => {
       state.user = action.payload;
     },
     logout: state => {

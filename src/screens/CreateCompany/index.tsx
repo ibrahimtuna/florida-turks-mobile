@@ -21,13 +21,17 @@ import { REQUEST_CREATE_COMPANY } from '../../api/requests.ts';
 import PhoneInput from '../../components/Inputs/PhoneInput.tsx';
 import { LOCATION } from '../../components/Inputs/LocationInput/types.ts';
 import LocationInput from '../../components/Inputs/LocationInput';
+import { useDispatch } from 'react-redux';
+import { addCompany } from '../../store/reducers/company.ts';
 
 const CreateCompanyScreen = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets();
   const { t } = useTranslation();
   const { language } = i18n;
   const { categories } = useAppSelector(state => state.company);
-  const navigation = useNavigation();
+  const { user } = useAppSelector(state => state.user);
 
   const [logo, setLogo] = useState('');
   const [banner, setBanner] = useState('');
@@ -151,7 +155,33 @@ const CreateCompanyScreen = () => {
       email: companyEmail,
       phoneNumber: formattedPhoneNumber,
     })
-      .then(({ data }) => console.log(data, '<-- data'))
+      .then(({ data }) => {
+        dispatch(
+          addCompany({
+            _id: data.company._id,
+            name: data.company.name,
+            desc: data.company.desc,
+            logoKey: data.company.logoKey,
+            coverPhotoKey: data.company.coverPhotoKey,
+            email: data.company.email,
+            phoneNumber: data.company.phoneNumber,
+            website: data.company.website,
+            categoryId: data.company.categoryId,
+            location: data.company.location,
+            createdAt: data.company.createdAt,
+            createdBy: {
+              _id: user._id,
+              name: user.name,
+              surname: user.surname,
+              photoKey: user.photoKey,
+            },
+            comments: [],
+            likeCount: 0,
+            isLiked: false,
+          }),
+        );
+        navigation.goBack();
+      })
       .finally(() => setSaveLoading(false));
   };
 
